@@ -370,11 +370,14 @@ function calculate(){
   disc.style.animation = `spin ${ (4 / speed).toFixed(2) }s linear infinite`;
 }
 
+let titleResetPending = false;
+
 function printResult(){
   const originalTitle = document.title;
   const now = new Date();
   const monthYear = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).replace(' ', '-');
   document.title = `Electricity-bill-calculator-${monthYear}`;
+  titleResetPending = true;
 
   try{
     window.print();
@@ -382,7 +385,22 @@ function printResult(){
     alert('Please use your browser\'s Print option (Ctrl+P or Cmd+P) to print this page.');
   }
 
-  setTimeout(() => { document.title = originalTitle; }, 1000);
+  // On mobile the print/share sheet can stay open well past a fixed timeout,
+  // so restore the title only once focus actually returns to this page.
+  const restoreTitle = () => {
+    if (titleResetPending) {
+      document.title = originalTitle;
+      titleResetPending = false;
+    }
+    window.removeEventListener('focus', restoreTitle);
+    document.removeEventListener('visibilitychange', visHandler);
+  };
+  const visHandler = () => { if (document.visibilityState === 'visible') restoreTitle(); };
+
+  window.addEventListener('focus', restoreTitle);
+  document.addEventListener('visibilitychange', visHandler);
+  // Safety net in case neither event fires on a given browser.
+  setTimeout(restoreTitle, 15000);
 }
 
 [refAmount, refUnits, mainPrev, mainCurr, petaPrev, petaCurr].forEach(inp => {
