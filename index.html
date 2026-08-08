@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electricity bill calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg: #16211d;
+    --panel: #1e2e28;
+    --panel-2: #24382f;
+    --copper: #c98a4b;
+    --copper-dim: #8a6238;
+    --lcd: #9fe870;
+    --lcd-dim: #4f7a3c;
+    --cream: #f4efe2;
+    --cream-dim: #b9b3a2;
+    --line: #3a4c43;
+    --blue: #7fb8d8;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Space Grotesk', sans-serif;
+    padding: 32px 16px 64px;
+  }
+  .wrap{ max-width: 720px; margin: 0 auto; }
+
+  .masthead{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom: 1px solid var(--copper-dim);
+    padding-bottom: 14px; margin-bottom: 22px;
+  }
+  .masthead h1{ font-size: 22px; font-weight: 700; margin:0; letter-spacing: 0.3px; }
+  .masthead .tag{
+    font-family: 'Space Mono', monospace; font-size: 11px; color: var(--copper);
+    text-transform: uppercase; letter-spacing: 1.5px;
+  }
+  .serial{ font-family:'Space Mono',monospace; font-size:11px; color:var(--cream-dim); text-align:right; }
+
+  .meter{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 26px;
+  }
+  .dial-holder{ display:flex; align-items:center; justify-content:center; }
+  #disc{ transform-origin: 60px 60px; }
+
+  .readout{
+    background: #0c1613;
+    border: 1px solid var(--copper-dim);
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .readout .label{
+    font-family:'Space Mono',monospace; font-size:10px; color: var(--copper);
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;
+  }
+  .readout .digits{
+    font-family:'Space Mono',monospace; font-size: 34px; color: var(--lcd);
+    letter-spacing: 2px; line-height:1;
+  }
+  .readout .digits span.unit{ font-size:14px; color: var(--lcd-dim); margin-left:6px; }
+  .readout .sub{ font-family:'Space Mono',monospace; font-size:11px; color: var(--cream-dim); margin-top:6px; }
+
+  .section{ margin-bottom: 22px; }
+  .section h2{
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--copper); margin: 0 0 4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section h2::after{ content:''; flex:1; height:1px; background: var(--line); }
+  .section .desc{ font-size: 12px; color: var(--cream-dim); margin: 0 0 12px; line-height: 1.6; }
+
+  .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px; }
+  .field label{ display:block; font-size: 12px; color: var(--cream-dim); margin-bottom: 6px; }
+  .field input{
+    width: 100%; background: var(--panel-2); border: 1px solid var(--line);
+    color: var(--cream); font-family:'Space Mono',monospace; font-size: 14px;
+    padding: 9px 10px; border-radius: 5px; outline:none;
+  }
+  .field input:focus{ border-color: var(--copper); }
+
+  .rate-strip{
+    display:flex; justify-content:space-between; align-items:center;
+    background: var(--panel-2); border: 1px dashed var(--copper-dim); border-radius: 6px;
+    padding: 10px 14px; margin-top: 4px;
+  }
+  .rate-strip .l{ font-size:12px; color: var(--cream-dim); }
+  .rate-strip .v{ font-family:'Space Mono',monospace; font-size:16px; color: var(--copper); }
+
+  .subhead{
+    font-family:'Space Mono',monospace; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--cream-dim); margin: 14px 0 8px;
+  }
+  .subhead.peta{ color: var(--blue); }
+  .subhead.result{
+    font-size: 13px; font-weight: 700; color: var(--copper);
+    letter-spacing: 1px; margin: 26px 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .subhead.result::after{ content:''; flex:1; height:1px; background: var(--line); }
+
+  .bill{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+  .bill.split-main{ border-color: var(--copper-dim); }
+  .bill.split-peta{ border-color: #3d5a68; }
+  .bill-line{
+    display:flex; justify-content:space-between; font-size: 13.5px;
+    padding: 7px 0; border-bottom: 1px solid #29392f;
+  }
+  .bill-line .l{ color: var(--cream-dim); }
+  .bill-line .v{ font-family:'Space Mono',monospace; }
+  .bill-total{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding-top: 16px; margin-top: 6px;
+  }
+  .bill-total .l{ font-size: 13px; text-transform:uppercase; letter-spacing:1px; color: var(--copper); }
+  .bill-total .v{ font-family:'Space Mono',monospace; font-size: 30px; color: var(--lcd); }
+  .bill-total.small .v{ font-size: 22px; }
+  .bill-total.main .l{ color: var(--copper); }
+  .bill-total.peta .l{ color: var(--blue); }
+  .bill-total.peta .v{ color: var(--blue); }
+
+  .split-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .split-title{
+    font-family:'Space Mono',monospace; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  .split-title.main{ color: var(--copper); }
+  .split-title.peta{ color: var(--blue); }
+
+  .hint{ font-size: 11px; color: var(--cream-dim); margin-top: 8px; line-height:1.6; }
+  .warn{ font-size: 11px; color: #e0a05a; margin-top: 8px; line-height:1.6; display:none; }
+
+  @media (max-width: 560px){
+    .meter{ grid-template-columns: 1fr; }
+    .row, .split-grid{ grid-template-columns: 1fr; }
+    .readout .digits{ font-size: 26px; }
+  }
+
+  .print-btn{
+    display:flex; align-items:center; gap:8px;
+    background: var(--panel-2); border: 1px solid var(--copper-dim); color: var(--copper);
+    font-family:'Space Mono',monospace; font-size: 12px; letter-spacing: 0.5px;
+    padding: 9px 16px; border-radius: 6px; cursor:pointer; margin: 0 0 22px auto;
+  }
+  .print-btn:hover{ border-color: var(--copper); background: var(--panel); }
+  .print-btn svg{ width:14px; height:14px; }
+  .print-btn-row{ display:flex; justify-content:flex-end; }
+
+  html{ -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+
+  .footer{
+    max-width: 720px; margin: 30px auto 0; padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'Space Mono',monospace; font-size: 10.5px; color: var(--cream-dim);
+  }
+  .footer .author{ color: var(--copper); }
+
+  @page{ margin: 0; }
+
+  @media print{
+    html, body{ background: var(--bg); -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; }
+    .print-btn-row{ display:none; }
+    .wrap{ max-width: 100%; padding: 22px 34px; margin: 0; box-sizing: border-box; }
+
+    /* keep cards intact, never split across a page break */
+    .meter, .bill, .section, .split-grid, .rate-strip{
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    /* force the two-column split to stay side by side regardless of viewport width */
+    .split-grid{ display:grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px; }
+    .row{ display:grid !important; grid-template-columns: 1fr 1fr !important; }
+
+    /* keep a result heading glued to the card that follows it */
+    .subhead.result{ break-after: avoid; page-break-after: avoid; margin-top: 18px; }
+
+    .dial-holder svg{ width: 90px; height: 90px; }
+    .readout .digits{ font-size: 26px; }
+    .section{ margin-bottom: 14px; }
+    .bill{ padding: 14px 16px; margin-bottom: 10px; }
+    .footer{ break-inside: avoid; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="print-btn-row">
+    <button class="print-btn" id="printBtn" onclick="printResult()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      Print result
+    </button>
+  </div>
+
+  <div class="masthead">
+    <div>
+      <h1>Electricity bill calculator</h1>
+      <div class="tag">Main meter + peta (sub) meter split</div>
+    </div>
+  </div>
+
+  <div class="meter">
+    <div class="dial-holder">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#3a4c43" stroke-width="2"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#c98a4b" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
+        <g id="disc">
+          <circle cx="60" cy="60" r="38" fill="#0c1613" stroke="#8a6238" stroke-width="1.5"/>
+          <line x1="60" y1="60" x2="60" y2="24" stroke="#9fe870" stroke-width="3" stroke-linecap="round"/>
+          <line x1="60" y1="60" x2="60" y2="96" stroke="#4f7a3c" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="60" cy="60" r="4" fill="#c98a4b"/>
+        </g>
+        <text x="60" y="115" text-anchor="middle" font-family="Space Mono, monospace" font-size="8" fill="#b9b3a2">kWh LOAD</text>
+      </svg>
+    </div>
+    <div class="readout">
+      <div class="label">Total bill (main meter)</div>
+      <div class="digits" id="totalDigits">0.00<span class="unit">INR</span></div>
+      <div class="sub" id="unitsSub">0 units &times; 0.00 /unit</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>1. Calibrate from your main meter bill</h2>
+    <p class="desc">Enter the total amount and total units from the actual PGVCL bill for the main meter. This gives an effective rate per unit &mdash; fixed charge, fuel surcharge and duty are already folded in, since the bill covers everything drawn through the main meter (main load + peta load combined).</p>
+    <div class="row">
+      <div class="field">
+        <label for="refAmount">Bill amount paid (INR)</label>
+        <input type="number" id="refAmount" value="1346.42" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label for="refUnits">Total units on that bill</label>
+        <input type="number" id="refUnits" value="204" min="1" step="1">
+      </div>
+    </div>
+    <div class="rate-strip">
+      <span class="l">Effective rate</span>
+      <span class="v" id="rateOut">0.00 /unit</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2. Readings for the period</h2>
+    <p class="desc">The main meter reading is the total combined consumption (everything, since the peta meter draws its power through the main line). Enter the peta meter's own reading separately &mdash; its consumption gets subtracted out to find what the main side alone used.</p>
+
+    <div class="subhead">Main meter (total / combined)</div>
+    <div class="row">
+      <div class="field">
+        <label for="mainPrev">Previous reading (kWh)</label>
+        <input type="number" id="mainPrev" value="7392" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="mainCurr">Current reading (kWh)</label>
+        <input type="number" id="mainCurr" value="7596" min="0" step="1">
+      </div>
+    </div>
+
+    <div class="subhead peta">Peta meter (sub meter)</div>
+    <div class="row">
+      <div class="field">
+        <label for="petaPrev">Previous reading (kWh)</label>
+        <input type="number" id="petaPrev" value="0" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="petaCurr">Current reading (kWh)</label>
+        <input type="number" id="petaCurr" value="0" min="0" step="1">
+      </div>
+    </div>
+    <div class="warn" id="warnMsg">Peta meter units are more than the total main meter units &mdash; check the readings.</div>
+  </div>
+
+  <div class="subhead result">Result &mdash; total (main line)</div>
+  <div class="bill">
+    <div class="bill-line"><span class="l">Total units consumed (main line)</span><span class="v" id="lTotalUnits">0</span></div>
+    <div class="bill-line"><span class="l">Effective rate</span><span class="v" id="lRate">0.00 /unit</span></div>
+    <div class="bill-total"><span class="l">Total bill</span><span class="v" id="lTotal">0.00</span></div>
+  </div>
+
+  <div class="subhead result">Result &mdash; both meters</div>
+  <div class="split-grid">
+    <div class="bill split-main">
+      <div class="split-title main">Main meter</div>
+      <div class="bill-line"><span class="l">Unit</span><span class="v" id="mainUnits">0</span></div>
+      <div class="bill-total main small"><span class="l">Bill amount</span><span class="v" id="mainAmt">0.00</span></div>
+    </div>
+    <div class="bill split-peta">
+      <div class="split-title peta">Peta meter</div>
+      <div class="bill-line"><span class="l">Unit</span><span class="v" id="petaUnits">0</span></div>
+      <div class="bill-total peta small"><span class="l">Bill amount</span><span class="v" id="petaAmt">0.00</span></div>
+    </div>
+  </div>
+
+  <p class="hint">Main meter's own consumption = total main meter units &minus; peta meter units. Each side is billed at the same effective rate, so the two shares always add back up to the total bill.</p>
+
+  <div class="footer">
+    <span>&copy; <span id="copyYear"></span> Electricity Bill Calculator</span>
+    <span class="author">Author &mdash; Vishal Beriya</span>
+  </div>
+
+</div>
+
+<script>
+const refAmount = document.getElementById('refAmount');
+const refUnits = document.getElementById('refUnits');
+const mainPrev = document.getElementById('mainPrev');
+const mainCurr = document.getElementById('mainCurr');
+const petaPrev = document.getElementById('petaPrev');
+const petaCurr = document.getElementById('petaCurr');
+const warnMsg = document.getElementById('warnMsg');
+
+function fmt(n){
+  return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtUnits(n){
+  return n.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function calculate(){
+  const rAmount = Math.max(0, parseFloat(refAmount.value) || 0);
+  const rUnits = Math.max(1, parseFloat(refUnits.value) || 1);
+  const rate = rAmount / rUnits;
+
+  const mPrev = Math.max(0, parseFloat(mainPrev.value) || 0);
+  const mCurr = Math.max(0, parseFloat(mainCurr.value) || 0);
+  const totalUnits = Math.max(0, mCurr - mPrev);
+
+  const pPrev = Math.max(0, parseFloat(petaPrev.value) || 0);
+  const pCurr = Math.max(0, parseFloat(petaCurr.value) || 0);
+  const petaUnitsVal = Math.max(0, pCurr - pPrev);
+
+  const overshoot = petaUnitsVal > totalUnits;
+  warnMsg.style.display = overshoot ? 'block' : 'none';
+  const mainUnitsVal = Math.max(0, totalUnits - petaUnitsVal);
+
+  const total = totalUnits * rate;
+  const mainAmtVal = mainUnitsVal * rate;
+  const petaAmtVal = petaUnitsVal * rate;
+
+  document.getElementById('rateOut').textContent = fmt(rate) + ' /unit';
+  document.getElementById('lTotalUnits').textContent = fmtUnits(totalUnits);
+  document.getElementById('lRate').textContent = fmt(rate) + ' /unit';
+  document.getElementById('lTotal').textContent = fmt(total);
+  document.getElementById('totalDigits').innerHTML = fmt(total) + '<span class="unit">INR</span>';
+  document.getElementById('unitsSub').textContent = fmtUnits(totalUnits) + ' units \u00d7 ' + fmt(rate) + ' /unit';
+
+  document.getElementById('mainUnits').textContent = fmtUnits(mainUnitsVal);
+  document.getElementById('mainAmt').textContent = fmt(mainAmtVal);
+  document.getElementById('petaUnits').textContent = fmtUnits(petaUnitsVal);
+  document.getElementById('petaAmt').textContent = fmt(petaAmtVal);
+
+  const disc = document.getElementById('disc');
+  const speed = Math.min(6, Math.max(0.6, totalUnits / 80));
+  disc.style.animation = `spin ${ (4 / speed).toFixed(2) }s linear infinite`;
+}
+
+function printResult(){
+  const originalTitle = document.title;
+  const now = new Date();
+  const monthYear = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).replace(' ', '-');
+  document.title = `Electricity-bill-calculator-${monthYear}`;
+
+  try{
+    window.print();
+  }catch(e){
+    alert('Please use your browser\'s Print option (Ctrl+P or Cmd+P) to print this page.');
+  }
+
+  setTimeout(() => { document.title = originalTitle; }, 1000);
+}
+
+[refAmount, refUnits, mainPrev, mainCurr, petaPrev, petaCurr].forEach(inp => {
+  inp.addEventListener('input', calculate);
+});
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }`;
+document.head.appendChild(styleTag);
+
+calculate();
+document.getElementById('copyYear').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
