@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bill-calc-v2';
+const CACHE_NAME = 'bill-calc-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -11,7 +11,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
   );
-  self.skipWaiting();
+  // Do NOT auto skip-waiting here — staying in "waiting" state lets the page
+  // detect an update is available and prompt the user before activating it.
 });
 
 self.addEventListener('activate', (event) => {
@@ -21,6 +22,12 @@ self.addEventListener('activate', (event) => {
     )
   );
   self.clients.claim();
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {
