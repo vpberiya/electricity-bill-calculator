@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Electricity bill calculator</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16211d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bill Calc">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
 
@@ -173,6 +181,35 @@
   }
   .footer .author{ color: var(--copper); }
 
+  .install-banner{
+    position: fixed; left: 16px; right: 16px; bottom: 16px;
+    max-width: 688px; margin: 0 auto;
+    background: var(--panel); border: 1px solid var(--copper-dim);
+    border-radius: 10px; padding: 14px 16px;
+    display: none; align-items: center; gap: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 999;
+  }
+  .install-banner.show{ display: flex; }
+  .install-banner .icon-box{
+    width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+    background: #0c1613; border: 1px solid var(--copper-dim);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .install-banner .icon-box svg{ width:20px; height:20px; color: var(--lcd); }
+  .install-banner .text{ flex: 1; min-width:0; }
+  .install-banner .text .t1{ font-size: 13px; font-weight: 700; color: var(--cream); }
+  .install-banner .text .t2{ font-size: 11.5px; color: var(--cream-dim); margin-top: 2px; }
+  .install-banner .actions{ display:flex; gap: 8px; flex-shrink: 0; }
+  .install-banner button{
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; border-radius: 6px;
+    padding: 8px 12px; cursor: pointer; border: 1px solid transparent;
+  }
+  .install-banner .btn-install{ background: var(--copper); color: #16211d; font-weight: 700; border-color: var(--copper); }
+  .install-banner .btn-dismiss{ background: transparent; color: var(--cream-dim); border-color: var(--line); }
+
+  @media print{ .install-banner{ display:none !important; } }
+
   @page{ margin: 0; }
 
   @media print{
@@ -316,6 +353,20 @@
 
 </div>
 
+<div class="install-banner" id="installBanner">
+  <div class="icon-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m8 11 4 4 4-4"></path><path d="M4 19h16"></path></svg>
+  </div>
+  <div class="text">
+    <div class="t1" id="installText1">Install this calculator</div>
+    <div class="t2" id="installText2">Add it to your home screen for quick, offline access.</div>
+  </div>
+  <div class="actions">
+    <button class="btn-dismiss" id="installDismiss">Not now</button>
+    <button class="btn-install" id="installBtn">Install</button>
+  </div>
+</div>
+
 <script>
 const refAmount = document.getElementById('refAmount');
 const refUnits = document.getElementById('refUnits');
@@ -413,6 +464,69 @@ document.head.appendChild(styleTag);
 
 calculate();
 document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+/* ---------- PWA install prompt ---------- */
+const installBanner = document.getElementById('installBanner');
+const installBtn = document.getElementById('installBtn');
+const installDismiss = document.getElementById('installDismiss');
+const installText1 = document.getElementById('installText1');
+const installText2 = document.getElementById('installText2');
+
+let deferredPrompt = null;
+const DISMISS_KEY = 'billCalcInstallDismissed';
+
+function alreadyStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function wasDismissedRecently(){
+  const t = sessionStorage.getItem(DISMISS_KEY);
+  return t === '1';
+}
+
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+if (!alreadyStandalone() && !wasDismissedRecently()) {
+  if (isIOS()) {
+    // iOS Safari has no beforeinstallprompt event; show manual instructions instead.
+    installText1.textContent = 'Add to Home Screen';
+    installText2.textContent = 'Tap the Share icon, then "Add to Home Screen".';
+    installBtn.style.display = 'none';
+    setTimeout(() => installBanner.classList.add('show'), 1200);
+  } else {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.add('show');
+    });
+  }
+}
+
+installBtn.addEventListener('click', async () => {
+  installBanner.classList.remove('show');
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  }
+});
+
+installDismiss.addEventListener('click', () => {
+  installBanner.classList.remove('show');
+  sessionStorage.setItem(DISMISS_KEY, '1');
+});
+
+window.addEventListener('appinstalled', () => {
+  installBanner.classList.remove('show');
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
