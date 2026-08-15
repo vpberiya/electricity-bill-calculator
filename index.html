@@ -28,25 +28,28 @@
     --line: #3a4c43;
     --blue: #7fb8d8;
   }
-  *{ box-sizing: border-box; }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html{ -webkit-text-size-adjust: 100%; }
   body{
     margin:0;
     background: var(--bg);
     color: var(--cream);
     font-family: 'Space Grotesk', sans-serif;
-    padding: 32px 16px 64px;
+    padding: 20px 14px 90px;
+    overflow-x: hidden;
   }
   .wrap{ max-width: 720px; margin: 0 auto; }
 
   .masthead{
     display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap: wrap; gap: 6px;
     border-bottom: 1px solid var(--copper-dim);
-    padding-bottom: 14px; margin-bottom: 22px;
+    padding-bottom: 14px; margin-bottom: 20px;
   }
-  .masthead h1{ font-size: 22px; font-weight: 700; margin:0; letter-spacing: 0.3px; }
+  .masthead h1{ font-size: clamp(18px, 5.5vw, 22px); font-weight: 700; margin:0; letter-spacing: 0.3px; }
   .masthead .tag{
-    font-family: 'Space Mono', monospace; font-size: 11px; color: var(--copper);
-    text-transform: uppercase; letter-spacing: 1.5px;
+    font-family: 'Space Mono', monospace; font-size: 10.5px; color: var(--copper);
+    text-transform: uppercase; letter-spacing: 1.2px;
   }
   .serial{ font-family:'Space Mono',monospace; font-size:11px; color:var(--cream-dim); text-align:right; }
 
@@ -54,67 +57,70 @@
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 22px;
+    padding: 18px;
     display: grid;
     grid-template-columns: 120px 1fr;
-    gap: 24px;
+    gap: 20px;
     align-items: center;
-    margin-bottom: 26px;
+    margin-bottom: 22px;
   }
   .dial-holder{ display:flex; align-items:center; justify-content:center; }
+  .dial-holder svg{ width: 100px; height: 100px; }
   #disc{ transform-origin: 60px 60px; }
 
   .readout{
     background: #0c1613;
     border: 1px solid var(--copper-dim);
     border-radius: 6px;
-    padding: 14px 18px;
+    padding: 12px 16px;
+    min-width: 0;
   }
   .readout .label{
     font-family:'Space Mono',monospace; font-size:10px; color: var(--copper);
     text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;
   }
   .readout .digits{
-    font-family:'Space Mono',monospace; font-size: 34px; color: var(--lcd);
-    letter-spacing: 2px; line-height:1;
+    font-family:'Space Mono',monospace; font-size: clamp(22px, 7vw, 34px); color: var(--lcd);
+    letter-spacing: 1px; line-height:1.1; word-break: break-word;
   }
-  .readout .digits span.unit{ font-size:14px; color: var(--lcd-dim); margin-left:6px; }
-  .readout .sub{ font-family:'Space Mono',monospace; font-size:11px; color: var(--cream-dim); margin-top:6px; }
+  .readout .digits span.unit{ font-size:13px; color: var(--lcd-dim); margin-left:6px; }
+  .readout .sub{ font-family:'Space Mono',monospace; font-size:10.5px; color: var(--cream-dim); margin-top:6px; }
 
-  .section{ margin-bottom: 22px; }
+  .section{ margin-bottom: 20px; }
   .section h2{
-    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
     color: var(--copper); margin: 0 0 4px;
     display:flex; align-items:center; gap:8px;
   }
   .section h2::after{ content:''; flex:1; height:1px; background: var(--line); }
   .section .desc{ font-size: 12px; color: var(--cream-dim); margin: 0 0 12px; line-height: 1.6; }
 
-  .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px; }
+  .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .field label{ display:block; font-size: 12px; color: var(--cream-dim); margin-bottom: 6px; }
   .field input{
     width: 100%; background: var(--panel-2); border: 1px solid var(--line);
-    color: var(--cream); font-family:'Space Mono',monospace; font-size: 14px;
-    padding: 9px 10px; border-radius: 5px; outline:none;
+    color: var(--cream); font-family:'Space Mono',monospace; font-size: 16px;
+    padding: 11px 10px; border-radius: 6px; outline:none;
+    min-height: 44px;
   }
   .field input:focus{ border-color: var(--copper); }
 
   .rate-strip{
     display:flex; justify-content:space-between; align-items:center;
     background: var(--panel-2); border: 1px dashed var(--copper-dim); border-radius: 6px;
-    padding: 10px 14px; margin-top: 4px;
+    padding: 10px 14px; margin-top: 4px; gap: 8px; flex-wrap: wrap;
   }
   .rate-strip .l{ font-size:12px; color: var(--cream-dim); }
   .rate-strip .v{ font-family:'Space Mono',monospace; font-size:16px; color: var(--copper); }
 
   .subhead{
-    font-family:'Space Mono',monospace; font-size: 11px; text-transform: uppercase;
+    font-family:'Space Mono',monospace; font-size: 10.5px; text-transform: uppercase;
     letter-spacing: 1px; color: var(--cream-dim); margin: 14px 0 8px;
   }
   .subhead.peta{ color: var(--blue); }
   .subhead.result{
-    font-size: 13px; font-weight: 700; color: var(--copper);
-    letter-spacing: 1px; margin: 26px 0 12px; display:flex; align-items:center; gap:8px;
+    font-size: 12.5px; font-weight: 700; color: var(--copper);
+    letter-spacing: 1px; margin: 24px 0 12px; display:flex; align-items:center; gap:8px;
   }
   .subhead.result::after{ content:''; flex:1; height:1px; background: var(--line); }
 
@@ -122,31 +128,31 @@
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 20px 22px;
-    margin-bottom: 16px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
   }
   .bill.split-main{ border-color: var(--copper-dim); }
   .bill.split-peta{ border-color: #3d5a68; }
   .bill-line{
-    display:flex; justify-content:space-between; font-size: 13.5px;
-    padding: 7px 0; border-bottom: 1px solid #29392f;
+    display:flex; justify-content:space-between; align-items:center; gap: 10px;
+    font-size: 13px; padding: 7px 0; border-bottom: 1px solid #29392f;
   }
   .bill-line .l{ color: var(--cream-dim); }
   .bill-line .v{ font-family:'Space Mono',monospace; }
   .bill-total{
-    display:flex; justify-content:space-between; align-items:baseline;
-    padding-top: 16px; margin-top: 6px;
+    display:flex; justify-content:space-between; align-items:baseline; gap: 8px; flex-wrap: wrap;
+    padding-top: 14px; margin-top: 6px;
   }
-  .bill-total .l{ font-size: 13px; text-transform:uppercase; letter-spacing:1px; color: var(--copper); }
-  .bill-total .v{ font-family:'Space Mono',monospace; font-size: 30px; color: var(--lcd); }
-  .bill-total.small .v{ font-size: 22px; }
+  .bill-total .l{ font-size: 12.5px; text-transform:uppercase; letter-spacing:1px; color: var(--copper); }
+  .bill-total .v{ font-family:'Space Mono',monospace; font-size: clamp(22px, 6.5vw, 30px); color: var(--lcd); }
+  .bill-total.small .v{ font-size: clamp(18px, 5.5vw, 22px); }
   .bill-total.main .l{ color: var(--copper); }
   .bill-total.peta .l{ color: var(--blue); }
   .bill-total.peta .v{ color: var(--blue); }
 
-  .split-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .split-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .split-title{
-    font-family:'Space Mono',monospace; font-size: 11px; text-transform: uppercase;
+    font-family:'Space Mono',monospace; font-size: 10.5px; text-transform: uppercase;
     letter-spacing: 1.2px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
   }
   .split-title.main{ color: var(--copper); }
@@ -156,59 +162,133 @@
   .warn{ font-size: 11px; color: #e0a05a; margin-top: 8px; line-height:1.6; display:none; }
 
   @media (max-width: 560px){
-    .meter{ grid-template-columns: 1fr; }
+    .meter{ grid-template-columns: 1fr; padding: 16px; }
+    .dial-holder svg{ width: 84px; height: 84px; }
     .row, .split-grid{ grid-template-columns: 1fr; }
-    .readout .digits{ font-size: 26px; }
+    .bill{ padding: 14px 16px; }
+  }
+
+  @media (max-width: 380px){
+    body{ padding: 16px 10px 90px; }
+    .bill-total .v{ font-size: 20px; }
   }
 
   .print-btn{
     display:flex; align-items:center; gap:8px;
     background: var(--panel-2); border: 1px solid var(--copper-dim); color: var(--copper);
     font-family:'Space Mono',monospace; font-size: 12px; letter-spacing: 0.5px;
-    padding: 9px 16px; border-radius: 6px; cursor:pointer; margin: 0 0 22px auto;
+    padding: 10px 16px; border-radius: 6px; cursor:pointer; margin: 0 0 20px auto;
+    min-height: 42px;
   }
   .print-btn:hover{ border-color: var(--copper); background: var(--panel); }
-  .print-btn svg{ width:14px; height:14px; }
+  .print-btn svg{ width:14px; height:14px; flex-shrink:0; }
   .print-btn-row{ display:flex; justify-content:flex-end; }
 
   html{ -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
 
   .footer{
-    max-width: 720px; margin: 30px auto 0; padding-top: 16px;
+    max-width: 720px; margin: 26px auto 0; padding-top: 16px;
     border-top: 1px solid var(--line);
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 6px;
     font-family:'Space Mono',monospace; font-size: 10.5px; color: var(--cream-dim);
   }
   .footer .author{ color: var(--copper); }
 
   .install-banner{
-    position: fixed; left: 16px; right: 16px; bottom: 16px;
+    position: fixed; left: 12px; right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     max-width: 688px; margin: 0 auto;
     background: var(--panel); border: 1px solid var(--copper-dim);
-    border-radius: 10px; padding: 14px 16px;
-    display: none; align-items: center; gap: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    border-radius: 12px; padding: 14px;
+    display: none; align-items: center; gap: 12px; flex-wrap: wrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
     z-index: 999;
   }
   .install-banner.show{ display: flex; }
   .install-banner .icon-box{
-    width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+    width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
     background: #0c1613; border: 1px solid var(--copper-dim);
     display:flex; align-items:center; justify-content:center;
   }
-  .install-banner .icon-box svg{ width:20px; height:20px; color: var(--lcd); }
-  .install-banner .text{ flex: 1; min-width:0; }
+  .install-banner .icon-box svg{ width:19px; height:19px; color: var(--lcd); }
+  .install-banner .text{ flex: 1 1 160px; min-width:0; }
   .install-banner .text .t1{ font-size: 13px; font-weight: 700; color: var(--cream); }
-  .install-banner .text .t2{ font-size: 11.5px; color: var(--cream-dim); margin-top: 2px; }
-  .install-banner .actions{ display:flex; gap: 8px; flex-shrink: 0; }
+  .install-banner .text .t2{ font-size: 11.5px; color: var(--cream-dim); margin-top: 2px; line-height:1.4; }
+  .install-banner .actions{ display:flex; gap: 8px; flex-shrink: 0; margin-left: auto; }
   .install-banner button{
     font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; border-radius: 6px;
-    padding: 8px 12px; cursor: pointer; border: 1px solid transparent;
+    padding: 9px 13px; cursor: pointer; border: 1px solid transparent; min-height: 38px;
   }
   .install-banner .btn-install{ background: var(--copper); color: #16211d; font-weight: 700; border-color: var(--copper); }
   .install-banner .btn-dismiss{ background: transparent; color: var(--cream-dim); border-color: var(--line); }
 
+  @media (max-width: 420px){
+    .install-banner{ flex-direction: column; align-items: stretch; text-align: center; }
+    .install-banner .icon-box{ margin: 0 auto; }
+    .install-banner .actions{ margin-left: 0; justify-content: center; }
+  }
+
   @media print{ .install-banner{ display:none !important; } }
+
+  /* ---------- Splash screen ---------- */
+  #splash{
+    position: fixed; inset: 0; z-index: 2000;
+    background: radial-gradient(circle at 50% 42%, #1c2b25 0%, #0f1a16 70%, #0a1310 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  #splash.hide{ opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .splash-ring{
+    width: 120px; height: 120px; position: relative; margin-bottom: 26px;
+  }
+  .splash-ring svg{ width:100%; height:100%; }
+  .splash-ring .glow{
+    position:absolute; inset:-14px; border-radius:50%;
+    background: radial-gradient(circle, rgba(159,232,112,0.35) 0%, rgba(159,232,112,0) 70%);
+    animation: pulseGlow 1.8s ease-in-out infinite;
+  }
+  @keyframes pulseGlow{
+    0%,100%{ opacity:0.5; transform: scale(0.92); }
+    50%{ opacity:1; transform: scale(1.08); }
+  }
+  #splashDisc{ transform-origin: 60px 60px; animation: spin 2.6s linear infinite; }
+  @keyframes spin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+
+  .splash-title{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; color: var(--cream);
+    font-size: 19px; letter-spacing: 0.3px; opacity: 0; text-align:center;
+    animation: fadeUp 0.7s ease 0.35s forwards;
+  }
+  .splash-tag{
+    font-family:'Space Mono', monospace; font-size: 10.5px; color: var(--copper);
+    text-transform: uppercase; letter-spacing: 1.8px; margin-top: 6px; opacity: 0;
+    animation: fadeUp 0.7s ease 0.55s forwards;
+  }
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .splash-bar{
+    width: 140px; height: 3px; background: var(--line); border-radius: 2px;
+    margin-top: 26px; overflow: hidden; opacity: 0;
+    animation: fadeUp 0.5s ease 0.7s forwards;
+  }
+  .splash-bar-fill{
+    height: 100%; width: 30%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--copper), var(--lcd));
+    animation: chargeBar 1.4s ease-in-out infinite;
+  }
+  @keyframes chargeBar{
+    0%{ transform: translateX(-110%); width: 40%; }
+    50%{ width: 60%; }
+    100%{ transform: translateX(280%); width: 40%; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .splash-ring .glow, #splashDisc, .splash-bar-fill{ animation: none !important; }
+  }
 
   @page{ margin: 0; }
 
@@ -237,6 +317,25 @@
 </style>
 </head>
 <body>
+<div id="splash">
+  <div class="splash-ring">
+    <div class="glow"></div>
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#3a4c43" stroke-width="2"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#c98a4b" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
+      <g id="splashDisc">
+        <circle cx="60" cy="60" r="38" fill="#0c1613" stroke="#8a6238" stroke-width="1.5"/>
+        <line x1="60" y1="60" x2="60" y2="24" stroke="#9fe870" stroke-width="3" stroke-linecap="round"/>
+        <line x1="60" y1="60" x2="60" y2="96" stroke="#4f7a3c" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="60" cy="60" r="4" fill="#c98a4b"/>
+      </g>
+    </svg>
+  </div>
+  <div class="splash-title">Electricity Bill Calculator</div>
+  <div class="splash-tag">Powering up&hellip;</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
 <div class="wrap">
 
   <div class="print-btn-row">
@@ -464,6 +563,37 @@ document.head.appendChild(styleTag);
 
 calculate();
 document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+/* ---------- Splash screen ---------- */
+(function(){
+  const splash = document.getElementById('splash');
+  const MIN_SHOW = 1400;
+  const shownAt = Date.now();
+  let dismissed = false;
+
+  function dismiss(){
+    if (dismissed) return;
+    dismissed = true;
+    splash.classList.add('hide');
+    setTimeout(() => splash.remove(), 550);
+  }
+
+  function readyToHide(){
+    const elapsed = Date.now() - shownAt;
+    const wait = Math.max(0, MIN_SHOW - elapsed);
+    setTimeout(dismiss, wait);
+  }
+
+  if (document.readyState === 'complete') {
+    readyToHide();
+  } else {
+    window.addEventListener('load', readyToHide);
+  }
+
+  // Let an impatient user tap through it.
+  splash.addEventListener('click', dismiss);
+  setTimeout(dismiss, 4000); // hard safety cap
+})();
 
 /* ---------- PWA install prompt ---------- */
 const installBanner = document.getElementById('installBanner');
