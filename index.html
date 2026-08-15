@@ -938,11 +938,24 @@ function showUpdateToast(worker){
 }
 
 updateBtn.addEventListener('click', () => {
+  updateBtn.disabled = true;
+  updateBtn.textContent = 'Updating…';
+
   if (waitingWorker) {
     waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+  } else {
+    hardReload();
   }
-  updateToast.classList.remove('show');
+  // Safety net in case controllerchange never fires on some browsers.
+  setTimeout(hardReload, 3000);
 });
+
+function hardReload(){
+  // Navigate to a clean, cache-busted URL — closer to a real close/reopen
+  // than a soft reload, so no stale HTML/JS can linger in any cache layer.
+  const base = window.location.pathname;
+  window.location.replace(base + '?v=' + Date.now());
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -969,12 +982,13 @@ if ('serviceWorker' in navigator) {
       });
     }).catch(() => {});
 
-    // Once the new worker takes control, reload once to load fresh assets.
+    // Once the new worker takes control, force a full hard reload so the
+    // update feels like a genuine close-and-reopen rather than a soft refresh.
     let refreshed = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (refreshed) return;
       refreshed = true;
-      window.location.reload();
+      hardReload();
     });
   });
 }

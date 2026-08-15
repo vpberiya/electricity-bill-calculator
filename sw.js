@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bill-calc-v4';
+const CACHE_NAME = 'bill-calc-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -9,10 +9,20 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Bypass the HTTP cache so we don't accidentally precache a stale
+      // copy of index.html that the browser already had sitting around.
+      await Promise.all(
+        ASSETS.map(async (url) => {
+          try {
+            const res = await fetch(url, { cache: 'reload' });
+            if (res && res.ok) await cache.put(url, res.clone());
+          } catch (e) { /* ignore individual asset failures */ }
+        })
+      );
+    })
   );
-  // Do NOT auto skip-waiting here — staying in "waiting" state lets the page
-  // detect an update is available and prompt the user before activating it.
+  // Stay in "waiting" state so the page can prompt before this activates.
 });
 
 self.addEventListener('activate', (event) => {
@@ -31,7 +41,35 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  const isNavigation = req.mode === 'navigate' || req.destination === 'document';
+
+  if (isNavigation) {
+    // Network-first for the page itself: always try to get the freshest
+    // HTML when online, only falling back to cache when offline.
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+          return res;
+        })
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (icons, manifest, fonts, etc).
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req).then((res) => {
+        if (res && res.ok) {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+        }
+        return res;
+      }).catch(() => cached);
+    })
   );
 });
