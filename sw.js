@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bill-calc-v6';
+const CACHE_NAME = 'bill-calc-v7';
 const ASSETS = [
   './',
   './index.html',
