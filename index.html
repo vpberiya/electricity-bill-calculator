@@ -182,8 +182,21 @@
   }
   .print-btn:hover{ border-color: var(--copper); background: var(--panel); }
   .print-btn svg{ width:14px; height:14px; flex-shrink:0; }
-  .print-btn-row{ display:flex; justify-content:flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-  .print-btn{ margin: 0; }
+  .print-btn-row{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: -4px 0 16px; }
+  .print-btn{ margin: 0; justify-content: center; padding: 10px 8px; font-size: 11.5px; gap: 6px; }
+  .print-btn svg{ width:15px; height:15px; }
+  .scope-select{
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--cream-dim);
+    font-family: 'Space Grotesk', sans-serif; font-size: 11.5px;
+    padding: 0 8px; border-radius: 6px; min-height: 42px;
+    outline: none; text-align: center; text-align-last: center;
+  }
+  .scope-select:focus{ border-color: var(--copper); }
+
+  @media (max-width: 400px){
+    .print-btn-row{ grid-template-columns: 1fr 1fr; }
+    .scope-select{ grid-column: 1 / -1; }
+  }
 
   html{ -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
 
@@ -252,39 +265,8 @@
   #splashDisc{ transform-origin: 60px 60px; animation: spin 2.6s linear infinite; }
   @keyframes spin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
 
-  .splash-title{
-    font-family:'Space Grotesk', sans-serif; font-weight:700; color: var(--cream);
-    font-size: 19px; letter-spacing: 0.3px; opacity: 0; text-align:center;
-    animation: fadeUp 0.7s ease 0.35s forwards;
-  }
-  .splash-tag{
-    font-family:'Space Mono', monospace; font-size: 10.5px; color: var(--copper);
-    text-transform: uppercase; letter-spacing: 1.8px; margin-top: 6px; opacity: 0;
-    animation: fadeUp 0.7s ease 0.55s forwards;
-  }
-  @keyframes fadeUp{
-    from{ opacity:0; transform: translateY(8px); }
-    to{ opacity:1; transform: translateY(0); }
-  }
-
-  .splash-bar{
-    width: 140px; height: 3px; background: var(--line); border-radius: 2px;
-    margin-top: 26px; overflow: hidden; opacity: 0;
-    animation: fadeUp 0.5s ease 0.7s forwards;
-  }
-  .splash-bar-fill{
-    height: 100%; width: 30%; border-radius: 2px;
-    background: linear-gradient(90deg, var(--copper), var(--lcd));
-    animation: chargeBar 1.4s ease-in-out infinite;
-  }
-  @keyframes chargeBar{
-    0%{ transform: translateX(-110%); width: 40%; }
-    50%{ width: 60%; }
-    100%{ transform: translateX(280%); width: 40%; }
-  }
-
   @media (prefers-reduced-motion: reduce){
-    .splash-ring .glow, #splashDisc, .splash-bar-fill{ animation: none !important; }
+    .splash-ring .glow, #splashDisc{ animation: none !important; }
   }
 
   /* ---------- Offline banner ---------- */
@@ -295,6 +277,7 @@
     padding: 9px 14px; text-align: center;
     align-items:center; justify-content:center; gap: 8px;
     display: none;
+    margin-bottom: 18px;
   }
   #offlineBanner.show{ display: flex; }
   #offlineBanner svg{ width:14px; height:14px; flex-shrink:0; }
@@ -366,9 +349,6 @@
       </g>
     </svg>
   </div>
-  <div class="splash-title">Electricity Bill Calculator</div>
-  <div class="splash-tag">Powering up&hellip;</div>
-  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
 </div>
 
 <div id="offlineBanner">
@@ -389,17 +369,6 @@
     <button id="updateBtn">Refresh</button>
   </div>
 
-
-  <div class="print-btn-row">
-    <button class="print-btn" id="shareBtn" onclick="shareResult()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-      Share result
-    </button>
-    <button class="print-btn" id="printBtn" onclick="printResult()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-      Print result
-    </button>
-  </div>
 
   <div class="masthead">
     <div>
@@ -486,6 +455,23 @@
   </div>
 
   <div class="subhead result">Result &mdash; both meters</div>
+
+  <div class="print-btn-row">
+    <select id="shareScope" class="scope-select">
+      <option value="both">Both meters</option>
+      <option value="main">Main only</option>
+      <option value="peta">Peta only</option>
+    </select>
+    <button class="print-btn" id="shareBtn" onclick="shareResult()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      Share
+    </button>
+    <button class="print-btn" id="printBtn" onclick="printResult()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      Print
+    </button>
+  </div>
+
   <div class="split-grid">
     <div class="bill split-main">
       <div class="split-title main">Main meter</div>
@@ -623,7 +609,7 @@ document.getElementById('copyYear').textContent = new Date().getFullYear();
 /* ---------- Splash screen ---------- */
 (function(){
   const splash = document.getElementById('splash');
-  const MIN_SHOW = 1400;
+  const MIN_SHOW = 900;
   const shownAt = Date.now();
   let dismissed = false;
 
@@ -648,7 +634,7 @@ document.getElementById('copyYear').textContent = new Date().getFullYear();
 
   // Let an impatient user tap through it.
   splash.addEventListener('click', dismiss);
-  setTimeout(dismiss, 4000); // hard safety cap
+  setTimeout(dismiss, 2500); // hard safety cap
 })();
 
 /* ---------- PWA install prompt ---------- */
@@ -720,7 +706,7 @@ function roundRectPath(ctx, x, y, w, h, r){
   ctx.closePath();
 }
 
-function buildShareText(){
+function buildShareText(scope){
   const totalUnits = document.getElementById('lTotalUnits').textContent;
   const rate = document.getElementById('lRate').textContent;
   const total = document.getElementById('lTotal').textContent;
@@ -729,17 +715,25 @@ function buildShareText(){
   const petaUnits = document.getElementById('petaUnits').textContent;
   const petaAmt = document.getElementById('petaAmt').textContent;
 
-  return [
-    'Electricity Bill Calculator',
-    `Total units: ${totalUnits}  (rate ${rate})`,
-    `Total bill: INR ${total}`,
-    '',
-    `Main meter — ${mainUnits} units — INR ${mainAmt}`,
-    `Peta meter — ${petaUnits} units — INR ${petaAmt}`
-  ].join('\n');
+  const lines = ['Electricity Bill Calculator'];
+
+  if (scope === 'main') {
+    lines.push(`Main meter — ${mainUnits} units — INR ${mainAmt}`);
+  } else if (scope === 'peta') {
+    lines.push(`Peta meter — ${petaUnits} units — INR ${petaAmt}`);
+  } else {
+    lines.push(
+      `Total units: ${totalUnits}  (rate ${rate})`,
+      `Total bill: INR ${total}`,
+      '',
+      `Main meter — ${mainUnits} units — INR ${mainAmt}`,
+      `Peta meter — ${petaUnits} units — INR ${petaAmt}`
+    );
+  }
+  return lines.join('\n');
 }
 
-async function buildShareImage(){
+async function buildShareImage(scope){
   await (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
 
   const totalUnits = document.getElementById('lTotalUnits').textContent;
@@ -750,139 +744,186 @@ async function buildShareImage(){
   const petaUnits = document.getElementById('petaUnits').textContent;
   const petaAmt = document.getElementById('petaAmt').textContent;
 
-  const W = 900, H = 1120;
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
+  const W = 820, pad = 48;
   const bg = '#16211d', panel = '#1e2e28', line = '#3a4c43';
   const copper = '#c98a4b', copperDim = '#8a6238', lcd = '#9fe870', blue = '#7fb8d8';
   const cream = '#f4efe2', creamDim = '#b9b3a2';
 
-  // background
-  const grad = ctx.createRadialGradient(W/2, 160, 60, W/2, 160, 700);
+  // ---- lay out sections top-to-bottom with a running cursor, so the
+  // canvas height always matches exactly what gets drawn (no dead space) ----
+  let y = 0;
+  const sections = []; // { draw(ctx, y) => returns new y }
+
+  const subtitle = scope === 'main' ? 'MAIN METER'
+                  : scope === 'peta' ? 'PETA (SUB) METER'
+                  : 'MAIN METER + PETA (SUB) METER SPLIT';
+
+  sections.push({
+    height: 118,
+    draw(ctx, yy){
+      ctx.fillStyle = cream;
+      ctx.font = '700 36px "Space Grotesk", sans-serif';
+      ctx.fillText('Electricity Bill Calculator', pad, yy + 40);
+
+      ctx.fillStyle = copper;
+      ctx.font = '600 16px "Space Mono", monospace';
+      ctx.fillText(subtitle, pad, yy + 68);
+
+      ctx.strokeStyle = copperDim;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pad, yy + 92); ctx.lineTo(W - pad, yy + 92); ctx.stroke();
+      return yy + 118;
+    }
+  });
+
+  // Hero box: total for "both", or that single meter's own bill for main/peta only.
+  const heroLabel = scope === 'main' ? 'MAIN METER BILL'
+                   : scope === 'peta' ? 'PETA METER BILL'
+                   : 'TOTAL BILL (MAIN METER)';
+  const heroAmount = scope === 'main' ? mainAmt : scope === 'peta' ? petaAmt : total;
+  const heroUnits = scope === 'main' ? mainUnits : scope === 'peta' ? petaUnits : totalUnits;
+  const heroAccent = scope === 'peta' ? blue : (scope === 'both' ? lcd : copper);
+  const heroSub = scope === 'both' ? `${heroUnits} units \u00d7 ${rate}` : `${heroUnits} units`;
+
+  sections.push({
+    height: 160,
+    draw(ctx, yy){
+      const dcx = pad + 70, dcy = yy + 78, dr = 66;
+      ctx.strokeStyle = line; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = copper; ctx.globalAlpha = 0.5;
+      ctx.setLineDash([5, 8]);
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+      ctx.fillStyle = '#0c1613';
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.stroke();
+
+      ctx.strokeStyle = heroAccent; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(dcx, dcy); ctx.lineTo(dcx - dr*0.1, dcy - dr*0.5); ctx.stroke();
+      ctx.fillStyle = copper;
+      ctx.beginPath(); ctx.arc(dcx, dcy, 5, 0, Math.PI*2); ctx.fill();
+
+      const rx = pad + 168, rw = W - pad - rx, rh = 152, ry = yy;
+      ctx.fillStyle = '#0c1613';
+      roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.fill();
+      ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
+      roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.stroke();
+
+      ctx.fillStyle = copper;
+      ctx.font = '600 15px "Space Mono", monospace';
+      ctx.fillText(heroLabel, rx + 22, ry + 36);
+
+      ctx.fillStyle = heroAccent;
+      ctx.font = '700 48px "Space Mono", monospace';
+      ctx.fillText(heroAmount + ' INR', rx + 22, ry + 96);
+
+      ctx.fillStyle = creamDim;
+      ctx.font = '400 16px "Space Mono", monospace';
+      ctx.fillText(heroSub, rx + 22, ry + 128);
+
+      return yy + 160;
+    }
+  });
+
+  if (scope === 'both') {
+    sections.push({
+      height: 240,
+      draw(ctx, yy){
+        const sgap = 20, sw = (W - pad*2 - sgap) / 2, sh = 220;
+
+        function drawSplitCard(x, label, unitVal, amtVal, accent){
+          roundRectPath(ctx, x, yy, sw, sh, 12);
+          ctx.fillStyle = panel; ctx.fill();
+          ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
+          roundRectPath(ctx, x, yy, sw, sh, 12); ctx.stroke();
+
+          ctx.fillStyle = accent;
+          ctx.font = '700 17px "Space Mono", monospace';
+          ctx.fillText(label, x + 20, yy + 36);
+
+          ctx.strokeStyle = line; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(x + 20, yy + 50); ctx.lineTo(x + sw - 20, yy + 50); ctx.stroke();
+
+          ctx.fillStyle = creamDim;
+          ctx.font = '400 15px "Space Grotesk", sans-serif';
+          ctx.fillText('Unit', x + 20, yy + 82);
+          ctx.fillStyle = cream;
+          ctx.font = '700 22px "Space Mono", monospace';
+          const uw = ctx.measureText(unitVal).width;
+          ctx.fillText(unitVal, x + sw - 20 - uw, yy + 86);
+
+          ctx.fillStyle = accent;
+          ctx.font = '600 13px "Space Mono", monospace';
+          ctx.fillText('BILL AMOUNT', x + 20, yy + 158);
+          ctx.fillStyle = accent;
+          ctx.font = '700 32px "Space Mono", monospace';
+          ctx.fillText('\u20B9' + amtVal, x + 20, yy + 198);
+        }
+
+        drawSplitCard(pad, 'MAIN METER', mainUnits, mainAmt, copper);
+        drawSplitCard(pad + sw + sgap, 'PETA METER', petaUnits, petaAmt, blue);
+        return yy + 240;
+      }
+    });
+  }
+
+  const footerHeight = 70;
+  sections.push({
+    height: footerHeight,
+    draw(ctx, yy){
+      ctx.strokeStyle = line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(W - pad, yy); ctx.stroke();
+
+      ctx.fillStyle = creamDim;
+      ctx.font = '400 14px "Space Mono", monospace';
+      ctx.fillText(`\u00A9 ${new Date().getFullYear()} Electricity Bill Calculator`, pad, yy + 38);
+
+      ctx.fillStyle = copper;
+      ctx.font = '600 14px "Space Mono", monospace';
+      const authorText = 'Author — Vishal Beriya';
+      const aw = ctx.measureText(authorText).width;
+      ctx.fillText(authorText, W - pad - aw, yy + 38);
+      return yy + footerHeight;
+    }
+  });
+
+  const totalHeight = sections.reduce((sum, s) => sum + s.height, 0) + pad; // top+bottom breathing room
+  const H = totalHeight;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const grad = ctx.createRadialGradient(W/2, 140, 60, W/2, 140, H*0.8);
   grad.addColorStop(0, '#1c2b25');
   grad.addColorStop(1, bg);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  const pad = 56;
-
-  // title
-  ctx.fillStyle = cream;
-  ctx.font = '700 40px "Space Grotesk", sans-serif';
-  ctx.fillText('Electricity Bill Calculator', pad, 92);
-
-  ctx.fillStyle = copper;
-  ctx.font = '600 18px "Space Mono", monospace';
-  ctx.fillText('MAIN METER + PETA (SUB) METER SPLIT', pad, 122);
-
-  ctx.strokeStyle = copperDim;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(pad, 144); ctx.lineTo(W - pad, 144); ctx.stroke();
-
-  // meter dial
-  const dcx = pad + 90, dcy = 260, dr = 78;
-  ctx.strokeStyle = line; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
-  ctx.strokeStyle = copper; ctx.globalAlpha = 0.5;
-  ctx.setLineDash([5, 8]);
-  ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
-  ctx.setLineDash([]); ctx.globalAlpha = 1;
-
-  ctx.fillStyle = '#0c1613';
-  ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.stroke();
-
-  ctx.strokeStyle = lcd; ctx.lineWidth = 5; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(dcx, dcy); ctx.lineTo(dcx - dr*0.1, dcy - dr*0.55); ctx.stroke();
-  ctx.fillStyle = copper;
-  ctx.beginPath(); ctx.arc(dcx, dcy, 6, 0, Math.PI*2); ctx.fill();
-
-  // total readout box
-  const rx = pad + 220, ry = 176, rw = W - pad - rx, rh = 168;
-  ctx.fillStyle = '#0c1613';
-  roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.fill();
-  ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
-  roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.stroke();
-
-  ctx.fillStyle = copper;
-  ctx.font = '600 16px "Space Mono", monospace';
-  ctx.fillText('TOTAL BILL (MAIN METER)', rx + 24, ry + 40);
-
-  ctx.fillStyle = lcd;
-  ctx.font = '700 54px "Space Mono", monospace';
-  ctx.fillText(total + ' INR', rx + 24, ry + 104);
-
-  ctx.fillStyle = creamDim;
-  ctx.font = '400 17px "Space Mono", monospace';
-  ctx.fillText(`${totalUnits} units \u00d7 ${rate}`, rx + 24, ry + 138);
-
-  // split cards
-  const sy = 380, sh = 300, sgap = 24;
-  const sw = (W - pad*2 - sgap) / 2;
-
-  function drawSplitCard(x, label, unitVal, amtVal, accent){
-    ctx.fillStyle = panel;
-    roundRectPath(ctx, x, sy, sw, sh, 12); ctx.fill();
-    ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
-    roundRectPath(ctx, x, sy, sw, sh, 12); ctx.stroke();
-
-    ctx.fillStyle = accent;
-    ctx.font = '700 20px "Space Mono", monospace';
-    ctx.fillText(label, x + 26, sy + 48);
-
-    ctx.strokeStyle = line; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x + 26, sy + 66); ctx.lineTo(x + sw - 26, sy + 66); ctx.stroke();
-
-    ctx.fillStyle = creamDim;
-    ctx.font = '400 18px "Space Grotesk", sans-serif';
-    ctx.fillText('Unit', x + 26, sy + 108);
-    ctx.fillStyle = cream;
-    ctx.font = '700 26px "Space Mono", monospace';
-    const uw = ctx.measureText(unitVal).width;
-    ctx.fillText(unitVal, x + sw - 26 - uw, sy + 112);
-
-    ctx.fillStyle = accent;
-    ctx.font = '600 15px "Space Mono", monospace';
-    ctx.fillText('BILL AMOUNT', x + 26, sy + 200);
-    ctx.fillStyle = accent;
-    ctx.font = '700 40px "Space Mono", monospace';
-    ctx.fillText('\u20B9' + amtVal, x + 26, sy + 250);
-  }
-
-  drawSplitCard(pad, 'MAIN METER', mainUnits, mainAmt, copper);
-  drawSplitCard(pad + sw + sgap, 'PETA METER', petaUnits, petaAmt, blue);
-
-  // footer
-  ctx.strokeStyle = line; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(pad, H - 96); ctx.lineTo(W - pad, H - 96); ctx.stroke();
-
-  ctx.fillStyle = creamDim;
-  ctx.font = '400 16px "Space Mono", monospace';
-  ctx.fillText(`\u00A9 ${new Date().getFullYear()} Electricity Bill Calculator`, pad, H - 56);
-
-  ctx.fillStyle = copper;
-  ctx.font = '600 16px "Space Mono", monospace';
-  const authorText = 'Author — Vishal Beriya';
-  const aw = ctx.measureText(authorText).width;
-  ctx.fillText(authorText, W - pad - aw, H - 56);
+  y = pad * 0.6;
+  sections.forEach((s) => { y = s.draw(ctx, y); });
 
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
 }
 
 async function shareResult(){
   const shareBtn = document.getElementById('shareBtn');
+  const scope = document.getElementById('shareScope').value;
   shareBtn.disabled = true;
   const originalHTML = shareBtn.innerHTML;
   shareBtn.innerHTML = '<span style="font-family:\'Space Mono\',monospace;">Preparing…</span>';
 
   try{
-    const text = buildShareText();
-    const blob = await buildShareImage();
-    const file = new File([blob], 'electricity-bill.png', { type: 'image/png' });
+    const text = buildShareText(scope);
+    const blob = await buildShareImage(scope);
+    const fileName = scope === 'main' ? 'main-meter-bill.png'
+                    : scope === 'peta' ? 'peta-meter-bill.png'
+                    : 'electricity-bill.png';
+    const file = new File([blob], fileName, { type: 'image/png' });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
