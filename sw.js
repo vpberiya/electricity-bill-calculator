@@ -1,7 +1,8 @@
-const CACHE_NAME = 'bill-calc-v11';
+const CACHE_NAME = 'bill-calc-v13';
 const ASSETS = [
   './',
   './index.html',
+  './history.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'

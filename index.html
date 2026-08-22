@@ -88,7 +88,7 @@
     width: 38px; height: 38px; border-radius: 8px;
     background: var(--panel-2); border: 1px solid var(--line); color: var(--copper);
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer; flex-shrink:0;
+    cursor:pointer; flex-shrink:0; text-decoration: none;
   }
   .icon-btn:hover{ border-color: var(--copper); }
   .icon-btn svg{ width:17px; height:17px; }
@@ -203,6 +203,43 @@
 
   .hint{ font-size: 11px; color: var(--cream-dim); margin-top: 8px; line-height:1.6; }
   .warn{ font-size: 11px; color: #e0a05a; margin-top: 8px; line-height:1.6; display:none; }
+
+  .history-save-row{ display:flex; gap: 10px; align-items:flex-end; margin-bottom: 14px; flex-wrap: wrap; }
+  .history-save-row .field{ flex: 1 1 160px; margin: 0; }
+  .history-save-row .print-btn{ flex-shrink: 0; }
+
+  .history-table{
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    max-height: 260px; overflow-y: auto;
+  }
+  .history-row{
+    display:grid; grid-template-columns: 1.3fr 0.8fr 1fr 1fr 1fr 32px;
+    gap: 6px; align-items:center; padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .history-row:last-child{ border-bottom: none; }
+  .history-row.history-head{
+    font-family:'Space Mono',monospace; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--cream-dim); background: var(--panel-2);
+    position: sticky; top: 0;
+  }
+  .history-row span{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-row .h-period{ color: var(--cream); font-weight: 600; }
+  .history-row .h-units{ font-family:'Space Mono',monospace; color: var(--cream-dim); }
+  .history-row .h-main{ font-family:'Space Mono',monospace; color: var(--copper); }
+  .history-row .h-peta{ font-family:'Space Mono',monospace; color: var(--blue); }
+  .history-row .h-total{ font-family:'Space Mono',monospace; color: var(--lcd); font-weight: 700; }
+  .history-del{
+    background: none; border: none; color: var(--cream-dim); cursor: pointer;
+    font-size: 16px; line-height: 1; padding: 4px; justify-self: end;
+  }
+  .history-del:hover{ color: #e0765a; }
+
+  @media (max-width: 480px){
+    .history-row{ grid-template-columns: 1fr 0.7fr 0.9fr 32px; }
+    .history-row > *:nth-child(3), .history-row > *:nth-child(4){ display:none; }
+  }
 
   @media (max-width: 560px){
     .meter{ grid-template-columns: 1fr; padding: 16px; }
@@ -419,6 +456,9 @@
       <div class="tag">Main meter + peta (sub) meter split</div>
     </div>
     <div class="masthead-actions">
+      <a class="icon-btn" href="history.html" title="View full history" aria-label="View full history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><polyline points="12 7 12 12 15 15"></polyline></svg>
+      </a>
       <button class="icon-btn" id="resetBtn" title="Reset all fields" aria-label="Reset all fields">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
       </button>
@@ -541,6 +581,37 @@
 
   <p class="hint">Main meter's own consumption = total main meter units &minus; peta meter units. Each side is billed at the same effective rate, so the two shares always add back up to the total bill.</p>
 
+  <div class="subhead result">History log</div>
+  <div class="section">
+    <p class="desc">Save this month's result to keep a running record &mdash; like the "last three months" table on your PGVCL bill.</p>
+
+    <div class="history-save-row">
+      <div class="field">
+        <label for="historyLabel">Period label</label>
+        <input type="text" id="historyLabel" placeholder="e.g. Jun-Jul 26">
+      </div>
+      <button class="print-btn" id="saveHistoryBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        Save
+      </button>
+    </div>
+
+    <p class="hint" id="historyEmpty">No saved entries yet &mdash; save this month's result above to start your record.</p>
+
+    <div id="historyPreviewWrap" style="display:none;">
+      <div class="history-table">
+        <div class="history-row history-head">
+          <span>Period</span><span>Units</span><span>Main (INR)</span><span>Peta (INR)</span><span>Total (INR)</span><span></span>
+        </div>
+        <div id="historyPreviewBody"></div>
+      </div>
+      <a class="print-btn" href="history.html" style="margin-top:12px; text-decoration:none; display:inline-flex;">
+        View full history
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+    </div>
+  </div>
+
   <div class="footer">
     <span>&copy; <span id="copyYear"></span> Electricity Bill Calculator</span>
     <span class="author">Author &mdash; Vishal Beriya</span>
@@ -625,6 +696,11 @@ function calculate(){
   document.getElementById('petaUnits').textContent = fmtUnits(petaUnitsVal);
   document.getElementById('petaAmt').textContent = fmt(petaAmtVal);
 
+  window.lastResult = {
+    totalUnits, mainUnitsVal, petaUnitsVal,
+    total, mainAmtVal, petaAmtVal
+  };
+
   const disc = document.getElementById('disc');
   const speed = Math.min(6, Math.max(0.6, totalUnits / 80));
   disc.style.animation = `spin ${ (4 / speed).toFixed(2) }s linear infinite`;
@@ -663,16 +739,119 @@ function printResult(){
   setTimeout(restoreTitle, 15000);
 }
 
+/* ---------- Remember last inputs ---------- */
+const INPUTS_KEY = 'billCalcInputs';
+
+function saveInputs(){
+  try{
+    const data = {
+      refAmount: refAmount.value, refUnits: refUnits.value,
+      mainPrev: mainPrev.value, mainCurr: mainCurr.value,
+      petaPrev: petaPrev.value, petaCurr: petaCurr.value
+    };
+    localStorage.setItem(INPUTS_KEY, JSON.stringify(data));
+  }catch(e){ /* storage unavailable — fail silently */ }
+}
+
+function loadInputs(){
+  try{
+    const raw = localStorage.getItem(INPUTS_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.refAmount !== undefined) refAmount.value = data.refAmount;
+    if (data.refUnits !== undefined) refUnits.value = data.refUnits;
+    if (data.mainPrev !== undefined) mainPrev.value = data.mainPrev;
+    if (data.mainCurr !== undefined) mainCurr.value = data.mainCurr;
+    if (data.petaPrev !== undefined) petaPrev.value = data.petaPrev;
+    if (data.petaCurr !== undefined) petaCurr.value = data.petaCurr;
+  }catch(e){ /* ignore corrupt/blocked storage */ }
+}
+
 [refAmount, refUnits, mainPrev, mainCurr, petaPrev, petaCurr].forEach(inp => {
-  inp.addEventListener('input', calculate);
+  inp.addEventListener('input', () => { calculate(); saveInputs(); });
 });
 
 const styleTag = document.createElement('style');
 styleTag.textContent = `@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }`;
 document.head.appendChild(styleTag);
 
+loadInputs();
 calculate();
 document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+/* ---------- History log (compact preview — full list lives on history.html) ---------- */
+const HISTORY_KEY = 'billCalcHistory';
+const HISTORY_LIMIT = 24;
+const PREVIEW_ROWS = 3;
+let historyData = [];
+
+function loadHistory(){
+  try{
+    const raw = localStorage.getItem(HISTORY_KEY);
+    historyData = raw ? JSON.parse(raw) : [];
+  }catch(e){ historyData = []; }
+}
+
+function persistHistory(){
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(historyData)); }catch(e){}
+}
+
+function defaultPeriodLabel(){
+  return new Date().toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+}
+
+function renderHistoryPreview(){
+  const wrap = document.getElementById('historyPreviewWrap');
+  const empty = document.getElementById('historyEmpty');
+  const body = document.getElementById('historyPreviewBody');
+
+  if (!historyData.length) {
+    wrap.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  wrap.style.display = 'block';
+  empty.style.display = 'none';
+
+  body.innerHTML = historyData.slice(0, PREVIEW_ROWS).map((h) => `
+    <div class="history-row">
+      <span class="h-period">${h.period}</span>
+      <span class="h-units">${h.totalUnits}</span>
+      <span class="h-main">${fmt(h.mainAmt)}</span>
+      <span class="h-peta">${fmt(h.petaAmt)}</span>
+      <span class="h-total">${fmt(h.total)}</span>
+      <span></span>
+    </div>
+  `).join('');
+}
+
+document.getElementById('historyLabel').value = defaultPeriodLabel();
+document.getElementById('historyLabel').placeholder = defaultPeriodLabel();
+
+document.getElementById('saveHistoryBtn').addEventListener('click', () => {
+  const labelInput = document.getElementById('historyLabel');
+  const period = (labelInput.value || defaultPeriodLabel()).trim();
+  const r = window.lastResult;
+  if (!r) return;
+
+  historyData.unshift({
+    period,
+    totalUnits: fmtUnits(r.totalUnits),
+    mainAmt: r.mainAmtVal,
+    petaAmt: r.petaAmtVal,
+    total: r.total,
+    savedAt: Date.now()
+  });
+  if (historyData.length > HISTORY_LIMIT) historyData.length = HISTORY_LIMIT;
+
+  persistHistory();
+  renderHistoryPreview();
+  labelInput.value = '';
+  labelInput.placeholder = 'e.g. Jun-Jul 26';
+});
+
+loadHistory();
+renderHistoryPreview();
 
 /* ---------- Reset button ---------- */
 const resetBtn = document.getElementById('resetBtn');
@@ -683,6 +862,7 @@ resetBtn.addEventListener('click', () => {
   if (!ok) return;
   allInputs.forEach((inp) => { inp.value = inp.dataset.default; });
   calculate();
+  saveInputs();
 });
 
 /* ---------- Theme toggle ---------- */

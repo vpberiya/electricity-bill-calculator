@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('billCalcTheme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    }catch(e){}
+  })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History &mdash; Electricity bill calculator</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16211d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bill Calc">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg: #16211d;
+    --panel: #1e2e28;
+    --panel-2: #24382f;
+    --copper: #c98a4b;
+    --copper-dim: #8a6238;
+    --lcd: #9fe870;
+    --lcd-dim: #4f7a3c;
+    --cream: #f4efe2;
+    --cream-dim: #b9b3a2;
+    --line: #3a4c43;
+    --blue: #7fb8d8;
+    --readout-bg: #0c1613;
+  }
+  [data-theme="light"]{
+    --bg: #f3f0e6;
+    --panel: #ffffff;
+    --panel-2: #eef0e8;
+    --copper: #a8622a;
+    --copper-dim: #d9b48c;
+    --lcd: #2f7d40;
+    --lcd-dim: #6f8f74;
+    --cream: #20291f;
+    --cream-dim: #6a7267;
+    --line: #dbdccf;
+    --blue: #2f6a8a;
+    --readout-bg: #f3f0e6;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html{ -webkit-text-size-adjust: 100%; transition: background-color 0.25s ease; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Space Grotesk', sans-serif;
+    padding: 20px 14px 60px;
+    overflow-x: hidden;
+  }
+  .wrap{ max-width: 720px; margin: 0 auto; }
+
+  .masthead{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap: wrap; gap: 10px;
+    border-bottom: 1px solid var(--copper-dim);
+    padding-bottom: 14px; margin-bottom: 20px;
+  }
+  .masthead-left{ display:flex; align-items:center; gap: 12px; min-width:0; }
+  .masthead h1{ font-size: clamp(17px, 5vw, 21px); font-weight: 700; margin:0; letter-spacing: 0.3px; }
+  .masthead .tag{
+    font-family: 'Space Mono', monospace; font-size: 10.5px; color: var(--copper);
+    text-transform: uppercase; letter-spacing: 1.2px;
+  }
+  .masthead-actions{ display:flex; align-items:center; gap: 8px; flex-shrink: 0; }
+
+  .icon-btn{
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--copper);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0; text-decoration:none;
+  }
+  .icon-btn:hover{ border-color: var(--copper); }
+  .icon-btn svg{ width:17px; height:17px; }
+
+  .summary-strip{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-bottom: 20px;
+  }
+  .summary-card{
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .summary-card .l{
+    font-family:'Space Mono',monospace; font-size: 10px; text-transform:uppercase;
+    letter-spacing: 0.6px; color: var(--cream-dim); margin-bottom: 4px;
+  }
+  .summary-card .v{
+    font-family:'Space Mono',monospace; font-size: clamp(14px, 4vw, 19px); color: var(--lcd); font-weight:700;
+  }
+
+  .history-table{
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .history-row{
+    display:grid; grid-template-columns: 1.3fr 0.8fr 1fr 1fr 1fr 32px;
+    gap: 6px; align-items:center; padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+  }
+  .history-row:last-child{ border-bottom: none; }
+  .history-row.history-head{
+    font-family:'Space Mono',monospace; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--cream-dim); background: var(--panel-2);
+  }
+  .history-row span{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-row .h-period{ color: var(--cream); font-weight: 600; }
+  .history-row .h-units{ font-family:'Space Mono',monospace; color: var(--cream-dim); }
+  .history-row .h-main{ font-family:'Space Mono',monospace; color: var(--copper); }
+  .history-row .h-peta{ font-family:'Space Mono',monospace; color: var(--blue); }
+  .history-row .h-total{ font-family:'Space Mono',monospace; color: var(--lcd); font-weight: 700; }
+  .history-del{
+    background: none; border: none; color: var(--cream-dim); cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 4px; justify-self: end;
+  }
+  .history-del:hover{ color: #e0765a; }
+
+  @media (max-width: 480px){
+    .history-row{ grid-template-columns: 1fr 0.7fr 0.9fr 32px; }
+    .history-row > *:nth-child(3), .history-row > *:nth-child(4){ display:none; }
+    .summary-strip{ grid-template-columns: 1fr 1fr; }
+    .summary-card:last-child{ grid-column: 1 / -1; }
+  }
+
+  .empty-state{
+    background: var(--panel); border: 1px dashed var(--line); border-radius: 10px;
+    padding: 32px 20px; text-align:center; color: var(--cream-dim); font-size: 13px;
+    line-height: 1.6;
+  }
+  .empty-state a{ color: var(--copper); }
+
+  .btn{
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px; border-radius: 8px;
+    padding: 10px 16px; cursor: pointer; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--cream-dim); min-height: 42px;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn.danger{ color: #e0765a; border-color: #8a4c3e; }
+  .btn.danger:hover{ border-color:#e0765a; }
+
+  .footer{
+    max-width: 720px; margin: 26px auto 0; padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 6px;
+    font-family:'Space Mono',monospace; font-size: 10.5px; color: var(--cream-dim);
+  }
+  .footer .author{ color: var(--copper); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="masthead-left">
+      <a class="icon-btn" href="index.html" title="Back to calculator" aria-label="Back to calculator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
+      <div>
+        <h1>History log</h1>
+        <div class="tag">All saved bill periods</div>
+      </div>
+    </div>
+    <div class="masthead-actions">
+      <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="summary-strip" id="summaryStrip" style="display:none;">
+    <div class="summary-card">
+      <div class="l">Entries</div>
+      <div class="v" id="sumCount">0</div>
+    </div>
+    <div class="summary-card">
+      <div class="l">Total units</div>
+      <div class="v" id="sumUnits">0</div>
+    </div>
+    <div class="summary-card">
+      <div class="l">Total billed</div>
+      <div class="v" id="sumAmt">0</div>
+    </div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    No saved entries yet.<br>
+    Go back to the <a href="index.html">calculator</a>, work out a bill, and tap <strong>Save</strong> to start your record here.
+  </div>
+
+  <div id="tableWrap" style="display:none;">
+    <div class="history-table">
+      <div class="history-row history-head">
+        <span>Period</span><span>Units</span><span>Main (INR)</span><span>Peta (INR)</span><span>Total (INR)</span><span></span>
+      </div>
+      <div id="historyBody"></div>
+    </div>
+    <button class="btn danger" id="clearHistoryBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      Clear all history
+    </button>
+  </div>
+
+  <div class="footer">
+    <span>&copy; <span id="copyYear"></span> Electricity Bill Calculator</span>
+    <span class="author">Author &mdash; Vishal Beriya</span>
+  </div>
+
+</div>
+
+<script>
+document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+function fmt(n){
+  return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/* ---------- Theme toggle (kept in sync with the calculator page) ---------- */
+const themeBtn = document.getElementById('themeBtn');
+const themeIconSun = document.getElementById('themeIconSun');
+const themeIconMoon = document.getElementById('themeIconMoon');
+
+function applyThemeIcon(){
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  themeIconSun.style.display = isLight ? 'none' : 'block';
+  themeIconMoon.style.display = isLight ? 'block' : 'none';
+}
+applyThemeIcon();
+
+themeBtn.addEventListener('click', () => {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    document.documentElement.removeAttribute('data-theme');
+    try{ localStorage.setItem('billCalcTheme', 'dark'); }catch(e){}
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    try{ localStorage.setItem('billCalcTheme', 'light'); }catch(e){}
+  }
+  applyThemeIcon();
+});
+
+/* ---------- History list ---------- */
+const HISTORY_KEY = 'billCalcHistory';
+let historyData = [];
+
+function loadHistory(){
+  try{
+    const raw = localStorage.getItem(HISTORY_KEY);
+    historyData = raw ? JSON.parse(raw) : [];
+  }catch(e){ historyData = []; }
+}
+
+function persistHistory(){
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(historyData)); }catch(e){}
+}
+
+function render(){
+  const empty = document.getElementById('emptyState');
+  const wrap = document.getElementById('tableWrap');
+  const summary = document.getElementById('summaryStrip');
+  const body = document.getElementById('historyBody');
+
+  if (!historyData.length) {
+    empty.style.display = 'block';
+    wrap.style.display = 'none';
+    summary.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.style.display = 'block';
+  summary.style.display = 'grid';
+
+  let unitsSum = 0, amtSum = 0;
+  historyData.forEach((h) => {
+    unitsSum += Number(h.totalUnits) || 0;
+    amtSum += Number(h.total) || 0;
+  });
+  document.getElementById('sumCount').textContent = historyData.length;
+  document.getElementById('sumUnits').textContent = unitsSum.toLocaleString('en-IN');
+  document.getElementById('sumAmt').textContent = '\u20B9' + fmt(amtSum);
+
+  body.innerHTML = historyData.map((h, i) => `
+    <div class="history-row">
+      <span class="h-period">${h.period}</span>
+      <span class="h-units">${h.totalUnits}</span>
+      <span class="h-main">${fmt(h.mainAmt)}</span>
+      <span class="h-peta">${fmt(h.petaAmt)}</span>
+      <span class="h-total">${fmt(h.total)}</span>
+      <button class="history-del" data-i="${i}" title="Delete entry" aria-label="Delete entry">&times;</button>
+    </div>
+  `).join('');
+
+  body.querySelectorAll('.history-del').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i, 10);
+      const removed = historyData[i];
+      const ok = window.confirm(`Delete the "${removed.period}" entry?`);
+      if (!ok) return;
+      historyData.splice(i, 1);
+      persistHistory();
+      render();
+    });
+  });
+}
+
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  const ok = window.confirm('Clear all saved history entries? This cannot be undone.');
+  if (!ok) return;
+  historyData = [];
+  persistHistory();
+  render();
+});
+
+loadHistory();
+render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
