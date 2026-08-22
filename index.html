@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('billCalcTheme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    }catch(e){}
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Electricity bill calculator</title>
@@ -27,6 +35,28 @@
     --cream-dim: #b9b3a2;
     --line: #3a4c43;
     --blue: #7fb8d8;
+    --readout-bg: #0c1613;
+  }
+
+  [data-theme="light"]{
+    --bg: #f3f0e6;
+    --panel: #ffffff;
+    --panel-2: #eef0e8;
+    --copper: #a8622a;
+    --copper-dim: #d9b48c;
+    --lcd: #2f7d40;
+    --lcd-dim: #6f8f74;
+    --cream: #20291f;
+    --cream-dim: #6a7267;
+    --line: #dbdccf;
+    --blue: #2f6a8a;
+    --readout-bg: #f3f0e6;
+  }
+
+  html{ transition: background-color 0.25s ease; }
+  body, .meter, .bill, .readout, .field input, .rate-strip, .install-banner,
+  #updateToast, .scope-select, .print-btn{
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
   }
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html{ -webkit-text-size-adjust: 100%; }
@@ -53,6 +83,17 @@
   }
   .serial{ font-family:'Space Mono',monospace; font-size:11px; color:var(--cream-dim); text-align:right; }
 
+  .masthead-actions{ display:flex; align-items:center; gap: 8px; flex-shrink: 0; }
+  .icon-btn{
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--copper);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0;
+  }
+  .icon-btn:hover{ border-color: var(--copper); }
+  .icon-btn svg{ width:17px; height:17px; }
+  .icon-btn#themeBtn svg{ color: var(--copper); }
+
   .meter{
     background: var(--panel);
     border: 1px solid var(--line);
@@ -69,7 +110,7 @@
   #disc{ transform-origin: 60px 60px; }
 
   .readout{
-    background: #0c1613;
+    background: var(--readout-bg);
     border: 1px solid var(--copper-dim);
     border-radius: 6px;
     padding: 12px 16px;
@@ -104,6 +145,8 @@
     min-height: 44px;
   }
   .field input:focus{ border-color: var(--copper); }
+  .field input.input-error{ border-color: #e0765a; }
+  .field input.input-error:focus{ border-color: #e0765a; }
 
   .rate-strip{
     display:flex; justify-content:space-between; align-items:center;
@@ -221,7 +264,7 @@
   .install-banner.show{ display: flex; }
   .install-banner .icon-box{
     width: 40px; height: 40px; border-radius: 9px;
-    background: #0c1613; border: 1px solid var(--copper-dim);
+    background: var(--readout-bg); border: 1px solid var(--copper-dim);
     display:flex; align-items:center; justify-content:center;
     margin-bottom: 6px;
   }
@@ -294,7 +337,7 @@
   #updateToast.show{ display: flex; }
   #updateToast .icon-box{
     width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
-    background: #0c1613; border: 1px solid var(--blue);
+    background: var(--readout-bg); border: 1px solid var(--blue);
     display:flex; align-items:center; justify-content:center;
   }
   #updateToast .icon-box svg{ width:17px; height:17px; color: var(--blue); animation: spinOnce 1s ease; }
@@ -375,6 +418,15 @@
       <h1>Electricity bill calculator</h1>
       <div class="tag">Main meter + peta (sub) meter split</div>
     </div>
+    <div class="masthead-actions">
+      <button class="icon-btn" id="resetBtn" title="Reset all fields" aria-label="Reset all fields">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+      </button>
+      <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
   </div>
 
   <div class="meter">
@@ -404,11 +456,11 @@
     <div class="row">
       <div class="field">
         <label for="refAmount">Bill amount paid (INR)</label>
-        <input type="number" id="refAmount" value="1346.42" min="0" step="0.01">
+        <input type="number" id="refAmount" value="1346.42" data-default="1346.42" min="0" step="0.01">
       </div>
       <div class="field">
         <label for="refUnits">Total units on that bill</label>
-        <input type="number" id="refUnits" value="204" min="1" step="1">
+        <input type="number" id="refUnits" value="204" data-default="204" min="1" step="1">
       </div>
     </div>
     <div class="rate-strip">
@@ -425,25 +477,27 @@
     <div class="row">
       <div class="field">
         <label for="mainPrev">Previous reading (kWh)</label>
-        <input type="number" id="mainPrev" value="7392" min="0" step="1">
+        <input type="number" id="mainPrev" value="7392" data-default="7392" min="0" step="1">
       </div>
       <div class="field">
         <label for="mainCurr">Current reading (kWh)</label>
-        <input type="number" id="mainCurr" value="7596" min="0" step="1">
+        <input type="number" id="mainCurr" value="7596" data-default="7596" min="0" step="1">
       </div>
     </div>
+    <div class="warn" id="mainReadingWarn">Current reading is less than the previous reading for the main meter &mdash; check for a typo.</div>
 
     <div class="subhead peta">Peta meter (sub meter)</div>
     <div class="row">
       <div class="field">
         <label for="petaPrev">Previous reading (kWh)</label>
-        <input type="number" id="petaPrev" value="0" min="0" step="1">
+        <input type="number" id="petaPrev" value="0" data-default="0" min="0" step="1">
       </div>
       <div class="field">
         <label for="petaCurr">Current reading (kWh)</label>
-        <input type="number" id="petaCurr" value="0" min="0" step="1">
+        <input type="number" id="petaCurr" value="0" data-default="0" min="0" step="1">
       </div>
     </div>
+    <div class="warn" id="petaReadingWarn">Current reading is less than the previous reading for the peta meter &mdash; check for a typo.</div>
     <div class="warn" id="warnMsg">Peta meter units are more than the total main meter units &mdash; check the readings.</div>
   </div>
 
@@ -516,6 +570,8 @@ const mainCurr = document.getElementById('mainCurr');
 const petaPrev = document.getElementById('petaPrev');
 const petaCurr = document.getElementById('petaCurr');
 const warnMsg = document.getElementById('warnMsg');
+const mainReadingWarn = document.getElementById('mainReadingWarn');
+const petaReadingWarn = document.getElementById('petaReadingWarn');
 
 function fmt(n){
   return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -529,12 +585,24 @@ function calculate(){
   const rUnits = Math.max(1, parseFloat(refUnits.value) || 1);
   const rate = rAmount / rUnits;
 
-  const mPrev = Math.max(0, parseFloat(mainPrev.value) || 0);
-  const mCurr = Math.max(0, parseFloat(mainCurr.value) || 0);
+  const mPrevRaw = parseFloat(mainPrev.value) || 0;
+  const mCurrRaw = parseFloat(mainCurr.value) || 0;
+  const mainInvalid = mCurrRaw < mPrevRaw;
+  mainReadingWarn.style.display = mainInvalid ? 'block' : 'none';
+  mainCurr.classList.toggle('input-error', mainInvalid);
+
+  const mPrev = Math.max(0, mPrevRaw);
+  const mCurr = Math.max(0, mCurrRaw);
   const totalUnits = Math.max(0, mCurr - mPrev);
 
-  const pPrev = Math.max(0, parseFloat(petaPrev.value) || 0);
-  const pCurr = Math.max(0, parseFloat(petaCurr.value) || 0);
+  const pPrevRaw = parseFloat(petaPrev.value) || 0;
+  const pCurrRaw = parseFloat(petaCurr.value) || 0;
+  const petaInvalid = pCurrRaw < pPrevRaw;
+  petaReadingWarn.style.display = petaInvalid ? 'block' : 'none';
+  petaCurr.classList.toggle('input-error', petaInvalid);
+
+  const pPrev = Math.max(0, pPrevRaw);
+  const pCurr = Math.max(0, pCurrRaw);
   const petaUnitsVal = Math.max(0, pCurr - pPrev);
 
   const overshoot = petaUnitsVal > totalUnits;
@@ -605,6 +673,41 @@ document.head.appendChild(styleTag);
 
 calculate();
 document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+/* ---------- Reset button ---------- */
+const resetBtn = document.getElementById('resetBtn');
+const allInputs = [refAmount, refUnits, mainPrev, mainCurr, petaPrev, petaCurr];
+
+resetBtn.addEventListener('click', () => {
+  const ok = window.confirm('Reset all fields back to their default values?');
+  if (!ok) return;
+  allInputs.forEach((inp) => { inp.value = inp.dataset.default; });
+  calculate();
+});
+
+/* ---------- Theme toggle ---------- */
+const themeBtn = document.getElementById('themeBtn');
+const themeIconSun = document.getElementById('themeIconSun');
+const themeIconMoon = document.getElementById('themeIconMoon');
+
+function applyThemeIcon(){
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  themeIconSun.style.display = isLight ? 'none' : 'block';
+  themeIconMoon.style.display = isLight ? 'block' : 'none';
+}
+applyThemeIcon();
+
+themeBtn.addEventListener('click', () => {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    document.documentElement.removeAttribute('data-theme');
+    try{ localStorage.setItem('billCalcTheme', 'dark'); }catch(e){}
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    try{ localStorage.setItem('billCalcTheme', 'light'); }catch(e){}
+  }
+  applyThemeIcon();
+});
 
 /* ---------- Splash screen ---------- */
 (function(){
