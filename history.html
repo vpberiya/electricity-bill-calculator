@@ -109,8 +109,8 @@
     margin-bottom: 18px;
   }
   .history-row{
-    display:grid; grid-template-columns: 1.2fr 0.7fr 0.9fr 0.9fr 0.9fr 30px 30px;
-    gap: 6px; align-items:center; padding: 11px 12px;
+    display:grid; grid-template-columns: minmax(0,1.2fr) minmax(0,0.7fr) minmax(0,0.9fr) minmax(0,0.9fr) minmax(0,0.9fr) 28px 28px;
+    gap: 4px; align-items:center; padding: 11px 10px;
     border-bottom: 1px solid var(--line);
     font-size: 12.5px;
   }
@@ -119,24 +119,29 @@
     font-family:'Space Mono',monospace; font-size: 10px; text-transform: uppercase;
     letter-spacing: 0.5px; color: var(--cream-dim); background: var(--panel-2);
   }
-  .history-row span{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-row span{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .history-row .h-period{ color: var(--cream); font-weight: 600; }
   .history-row .h-units{ font-family:'Space Mono',monospace; color: var(--cream-dim); }
   .history-row .h-main{ font-family:'Space Mono',monospace; color: var(--copper); }
   .history-row .h-peta{ font-family:'Space Mono',monospace; color: var(--blue); }
   .history-row .h-total{ font-family:'Space Mono',monospace; color: var(--lcd); font-weight: 700; }
-  .history-del, .history-share{
+  .history-del, .history-share, .history-view{
     background: none; border: none; color: var(--cream-dim); cursor: pointer;
     padding: 4px; justify-self: end; display:flex; align-items:center; justify-content:center;
   }
   .history-del{ font-size: 18px; line-height: 1; }
   .history-del:hover{ color: #e0765a; }
-  .history-share svg{ width:15px; height:15px; }
+  .history-share svg, .history-view svg{ width:15px; height:15px; }
   .history-share:hover{ color: var(--copper); }
+  .history-view:hover{ color: var(--copper); }
+  .history-view{ display:none; }
 
-  @media (max-width: 480px){
-    .history-row{ grid-template-columns: 1fr 0.6fr 0.9fr 30px 30px; }
-    .history-row > *:nth-child(3), .history-row > *:nth-child(4){ display:none; }
+  @media (max-width: 600px){
+    .history-row{ grid-template-columns: minmax(0,1fr) auto 30px; gap: 8px; padding: 12px; }
+    .history-row > *:nth-child(2), .history-row > *:nth-child(3), .history-row > *:nth-child(4),
+    .history-row > *:nth-child(6), .history-row > *:nth-child(7){ display:none; }
+    .history-row .h-total{ font-size: 14px; }
+    .history-view{ display:flex; }
     .summary-strip{ grid-template-columns: 1fr 1fr; }
     .summary-card:last-child{ grid-column: 1 / -1; }
   }
@@ -195,6 +200,31 @@
     font-family:'Space Grotesk', sans-serif; font-size: 13px; padding: 10px; border-radius: 8px;
     cursor:pointer; margin-top: 4px; min-height: 40px;
   }
+
+  #viewModalOverlay{
+    position: fixed; inset:0; background: rgba(0,0,0,0.55); z-index: 2000;
+    display:none; align-items:center; justify-content:center; padding: 20px;
+  }
+  #viewModalOverlay.show{ display:flex; }
+
+  .view-detail-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 10px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px;
+  }
+  .view-detail-row .l{ color: var(--cream-dim); }
+  .view-detail-row .l.main{ color: var(--copper); }
+  .view-detail-row .l.peta{ color: var(--blue); }
+  .view-detail-row .v{ font-family:'Space Mono',monospace; }
+  .view-detail-row .v.main{ color: var(--copper); }
+  .view-detail-row .v.peta{ color: var(--blue); }
+  .view-detail-row.total{ border-bottom:none; padding-top:14px; }
+  .view-detail-row.total .l{ text-transform:uppercase; font-size:11px; letter-spacing:0.5px; color: var(--copper); }
+  .view-detail-row.total .v{ font-size: 22px; font-weight:700; color: var(--lcd); }
+
+  .view-modal-actions{ display:flex; gap:8px; margin-top: 16px; }
+  .view-modal-actions .opt{ margin-bottom:0; justify-content:center; gap:8px; }
+  .opt.danger-opt{ color: #e0765a; }
+  .opt.danger-opt:hover{ border-color: #e0765a; }
 
   .empty-state{
     background: var(--panel); border: 1px dashed var(--line); border-radius: 10px;
@@ -278,7 +308,7 @@
 
     <div class="history-table">
       <div class="history-row history-head">
-        <span>Period</span><span>Units</span><span>Main (INR)</span><span>Peta (INR)</span><span>Total (INR)</span><span></span><span></span>
+        <span>Period</span><span>Units</span><span>Main (INR)</span><span>Peta (INR)</span><span>Total (INR)</span><span></span><span></span><span></span>
       </div>
       <div id="historyBody"></div>
       <div class="no-results" id="noResults" style="display:none;">No entries match your search.</div>
@@ -304,6 +334,28 @@
     <button class="opt main" data-scope="main"><span>Main meter only</span><span class="dot"></span></button>
     <button class="opt peta" data-scope="peta"><span>Peta meter only</span><span class="dot"></span></button>
     <button class="cancel" id="shareModalCancel">Cancel</button>
+  </div>
+</div>
+
+<div id="viewModalOverlay">
+  <div class="share-modal">
+    <h3 id="viewModalPeriod">Period</h3>
+    <div class="sub">Saved bill details</div>
+    <div class="view-detail-row"><span class="l">Units</span><span class="v" id="viewUnits">0</span></div>
+    <div class="view-detail-row"><span class="l main">Main meter</span><span class="v main" id="viewMain">0.00</span></div>
+    <div class="view-detail-row"><span class="l peta">Peta meter</span><span class="v peta" id="viewPeta">0.00</span></div>
+    <div class="view-detail-row total"><span class="l">Total bill</span><span class="v" id="viewTotal">0.00</span></div>
+    <div class="view-modal-actions">
+      <button class="opt" id="viewShareBtn" style="margin-bottom:0;">
+        <span>Share</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      </button>
+      <button class="opt danger-opt" id="viewDeleteBtn" style="margin-bottom:0;">
+        <span>Delete</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    </div>
+    <button class="cancel" id="viewModalClose">Close</button>
   </div>
 </div>
 
@@ -422,6 +474,9 @@ function render(){
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
         </button>
         <button class="history-del" data-i="${h.originalIndex}" title="Delete entry" aria-label="Delete entry">&times;</button>
+        <button class="history-view" data-i="${h.originalIndex}" title="View details" aria-label="View details">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
       </div>
     `).join('');
   }
@@ -442,6 +497,13 @@ function render(){
     btn.addEventListener('click', () => {
       const i = parseInt(btn.dataset.i, 10);
       openShareModal(historyData[i]);
+    });
+  });
+
+  body.querySelectorAll('.history-view').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i, 10);
+      openViewModal(historyData[i], i);
     });
   });
 }
@@ -477,13 +539,54 @@ function closeShareModal(){
 document.getElementById('shareModalCancel').addEventListener('click', closeShareModal);
 shareModalOverlay.addEventListener('click', (e) => { if (e.target === shareModalOverlay) closeShareModal(); });
 
-document.querySelectorAll('.share-modal .opt').forEach((btn) => {
+document.querySelectorAll('.share-modal .opt[data-scope]').forEach((btn) => {
   btn.addEventListener('click', async () => {
     const scope = btn.dataset.scope;
     const entry = shareEntryPending;
     closeShareModal();
     if (entry) await shareHistoryEntry(entry, scope);
   });
+});
+
+/* ---------- View-detail modal ---------- */
+const viewModalOverlay = document.getElementById('viewModalOverlay');
+let viewEntryPending = null;
+let viewEntryIndexPending = null;
+
+function openViewModal(entry, index){
+  viewEntryPending = entry;
+  viewEntryIndexPending = index;
+  document.getElementById('viewModalPeriod').textContent = entry.period;
+  document.getElementById('viewUnits').textContent = entry.totalUnits;
+  document.getElementById('viewMain').textContent = '\u20B9' + fmt(entry.mainAmt);
+  document.getElementById('viewPeta').textContent = '\u20B9' + fmt(entry.petaAmt);
+  document.getElementById('viewTotal').textContent = '\u20B9' + fmt(entry.total);
+  viewModalOverlay.classList.add('show');
+}
+function closeViewModal(){
+  viewModalOverlay.classList.remove('show');
+  viewEntryPending = null;
+  viewEntryIndexPending = null;
+}
+document.getElementById('viewModalClose').addEventListener('click', closeViewModal);
+viewModalOverlay.addEventListener('click', (e) => { if (e.target === viewModalOverlay) closeViewModal(); });
+
+document.getElementById('viewShareBtn').addEventListener('click', () => {
+  const entry = viewEntryPending;
+  closeViewModal();
+  if (entry) openShareModal(entry);
+});
+
+document.getElementById('viewDeleteBtn').addEventListener('click', () => {
+  const entry = viewEntryPending;
+  const index = viewEntryIndexPending;
+  if (!entry) return;
+  const ok = window.confirm(`Delete the "${entry.period}" entry?`);
+  if (!ok) return;
+  historyData.splice(index, 1);
+  persistHistory();
+  closeViewModal();
+  render();
 });
 
 function roundRectPath(ctx, x, y, w, h, r){
@@ -496,9 +599,30 @@ function roundRectPath(ctx, x, y, w, h, r){
   ctx.closePath();
 }
 
+function deriveEntryUnits(entry){
+  if (entry.mainUnits !== undefined && entry.petaUnits !== undefined) {
+    return { mainUnits: entry.mainUnits, petaUnits: entry.petaUnits };
+  }
+  // Older saved entries don't have a per-meter unit split stored — derive a
+  // close estimate from the amounts and the blended rate, so sharing still
+  // shows sensible unit counts instead of a blank/dash.
+  const totalUnits = Number(entry.totalUnits) || 0;
+  const total = Number(entry.total) || 0;
+  const rate = totalUnits > 0 && total > 0 ? total / totalUnits : 0;
+
+  let mainUnits = entry.mainUnits;
+  let petaUnits = entry.petaUnits;
+  if (mainUnits === undefined) {
+    mainUnits = rate > 0 ? Math.round((Number(entry.mainAmt) || 0) / rate) : totalUnits;
+  }
+  if (petaUnits === undefined) {
+    petaUnits = rate > 0 ? Math.round((Number(entry.petaAmt) || 0) / rate) : 0;
+  }
+  return { mainUnits, petaUnits };
+}
+
 function buildEntryShareText(entry, scope){
-  const mainUnits = entry.mainUnits !== undefined ? entry.mainUnits : '\u2014';
-  const petaUnits = entry.petaUnits !== undefined ? entry.petaUnits : '\u2014';
+  const { mainUnits, petaUnits } = deriveEntryUnits(entry);
 
   const lines = ['Electricity Bill Calculator', `Period: ${entry.period}`];
   if (scope === 'main') {
@@ -534,8 +658,7 @@ async function buildEntryShareImage(entry, scope){
   const creamDim = isLight ? '#6a7267' : '#b9b3a2';
   const readoutBg = isLight ? '#f3f0e6' : '#0c1613';
 
-  const mainUnits = entry.mainUnits !== undefined ? entry.mainUnits : '\u2014';
-  const petaUnits = entry.petaUnits !== undefined ? entry.petaUnits : '\u2014';
+  const { mainUnits, petaUnits } = deriveEntryUnits(entry);
 
   let y = 0;
   const sections = [];
