@@ -837,6 +837,8 @@ document.getElementById('saveHistoryBtn').addEventListener('click', () => {
   historyData.unshift({
     period,
     totalUnits: fmtUnits(r.totalUnits),
+    mainUnits: fmtUnits(r.mainUnitsVal),
+    petaUnits: fmtUnits(r.petaUnitsVal),
     mainAmt: r.mainAmtVal,
     petaAmt: r.petaAmtVal,
     total: r.total,

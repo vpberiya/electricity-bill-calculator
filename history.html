@@ -109,7 +109,7 @@
     margin-bottom: 18px;
   }
   .history-row{
-    display:grid; grid-template-columns: 1.3fr 0.8fr 1fr 1fr 1fr 32px;
+    display:grid; grid-template-columns: 1.2fr 0.7fr 0.9fr 0.9fr 0.9fr 30px 30px;
     gap: 6px; align-items:center; padding: 11px 12px;
     border-bottom: 1px solid var(--line);
     font-size: 12.5px;
@@ -125,17 +125,75 @@
   .history-row .h-main{ font-family:'Space Mono',monospace; color: var(--copper); }
   .history-row .h-peta{ font-family:'Space Mono',monospace; color: var(--blue); }
   .history-row .h-total{ font-family:'Space Mono',monospace; color: var(--lcd); font-weight: 700; }
-  .history-del{
+  .history-del, .history-share{
     background: none; border: none; color: var(--cream-dim); cursor: pointer;
-    font-size: 18px; line-height: 1; padding: 4px; justify-self: end;
+    padding: 4px; justify-self: end; display:flex; align-items:center; justify-content:center;
   }
+  .history-del{ font-size: 18px; line-height: 1; }
   .history-del:hover{ color: #e0765a; }
+  .history-share svg{ width:15px; height:15px; }
+  .history-share:hover{ color: var(--copper); }
 
   @media (max-width: 480px){
-    .history-row{ grid-template-columns: 1fr 0.7fr 0.9fr 32px; }
+    .history-row{ grid-template-columns: 1fr 0.6fr 0.9fr 30px 30px; }
     .history-row > *:nth-child(3), .history-row > *:nth-child(4){ display:none; }
     .summary-strip{ grid-template-columns: 1fr 1fr; }
     .summary-card:last-child{ grid-column: 1 / -1; }
+  }
+
+  .filter-row{
+    display:flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .filter-row .search-field{
+    flex: 1 1 180px; position:relative;
+  }
+  .filter-row .search-field svg{
+    position:absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; color: var(--cream-dim); pointer-events:none;
+  }
+  .filter-row input[type="text"]{
+    width:100%; background: var(--panel-2); border: 1px solid var(--line); color: var(--cream);
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px;
+    padding: 10px 12px 10px 34px; border-radius: 8px; outline:none; min-height: 42px;
+  }
+  .filter-row input[type="text"]:focus{ border-color: var(--copper); }
+  .filter-row select{
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--cream-dim);
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px;
+    padding: 0 10px; border-radius: 8px; min-height: 42px; outline:none; flex-shrink:0;
+  }
+  .filter-row select:focus{ border-color: var(--copper); }
+  .no-results{
+    text-align:center; color: var(--cream-dim); font-size: 13px; padding: 24px 10px;
+  }
+
+  /* ---------- Share-scope modal ---------- */
+  #shareModalOverlay{
+    position: fixed; inset:0; background: rgba(0,0,0,0.55); z-index: 2000;
+    display:none; align-items:center; justify-content:center; padding: 20px;
+  }
+  #shareModalOverlay.show{ display:flex; }
+  .share-modal{
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; max-width: 340px; width:100%;
+  }
+  .share-modal h3{ margin:0 0 4px; font-size: 15px; color: var(--cream); }
+  .share-modal .sub{ font-size: 12px; color: var(--cream-dim); margin-bottom: 16px; }
+  .share-modal .opt{
+    display:flex; align-items:center; justify-content:space-between;
+    width:100%; background: var(--panel-2); border: 1px solid var(--line); color: var(--cream);
+    font-family:'Space Grotesk', sans-serif; font-size: 13.5px;
+    padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; cursor:pointer; min-height: 44px;
+  }
+  .share-modal .opt:hover{ border-color: var(--copper); }
+  .share-modal .opt .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .share-modal .opt.both .dot{ background: var(--lcd); }
+  .share-modal .opt.main .dot{ background: var(--copper); }
+  .share-modal .opt.peta .dot{ background: var(--blue); }
+  .share-modal .cancel{
+    width:100%; background:none; border: 1px solid var(--line); color: var(--cream-dim);
+    font-family:'Space Grotesk', sans-serif; font-size: 13px; padding: 10px; border-radius: 8px;
+    cursor:pointer; margin-top: 4px; min-height: 40px;
   }
 
   .empty-state{
@@ -205,11 +263,25 @@
   </div>
 
   <div id="tableWrap" style="display:none;">
+    <div class="filter-row">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchInput" placeholder="Search by period&hellip;">
+      </div>
+      <select id="sortSelect">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="amount-high">Highest amount</option>
+        <option value="amount-low">Lowest amount</option>
+      </select>
+    </div>
+
     <div class="history-table">
       <div class="history-row history-head">
-        <span>Period</span><span>Units</span><span>Main (INR)</span><span>Peta (INR)</span><span>Total (INR)</span><span></span>
+        <span>Period</span><span>Units</span><span>Main (INR)</span><span>Peta (INR)</span><span>Total (INR)</span><span></span><span></span>
       </div>
       <div id="historyBody"></div>
+      <div class="no-results" id="noResults" style="display:none;">No entries match your search.</div>
     </div>
     <button class="btn danger" id="clearHistoryBtn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -222,6 +294,17 @@
     <span class="author">Author &mdash; Vishal Beriya</span>
   </div>
 
+</div>
+
+<div id="shareModalOverlay">
+  <div class="share-modal">
+    <h3>Share which meter?</h3>
+    <div class="sub" id="shareModalPeriod">Period</div>
+    <button class="opt both" data-scope="both"><span>Both meters</span><span class="dot"></span></button>
+    <button class="opt main" data-scope="main"><span>Main meter only</span><span class="dot"></span></button>
+    <button class="opt peta" data-scope="peta"><span>Peta meter only</span><span class="dot"></span></button>
+    <button class="cancel" id="shareModalCancel">Cancel</button>
+  </div>
 </div>
 
 <script>
@@ -270,11 +353,37 @@ function persistHistory(){
   try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(historyData)); }catch(e){}
 }
 
+function getFilteredSortedData(){
+  const searchTerm = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  const sortMode = document.getElementById('sortSelect').value;
+
+  let list = historyData.map((h, originalIndex) => ({ ...h, originalIndex }));
+
+  if (searchTerm) {
+    list = list.filter((h) => (h.period || '').toLowerCase().includes(searchTerm));
+  }
+
+  switch (sortMode) {
+    case 'oldest':
+      list.reverse();
+      break;
+    case 'amount-high':
+      list.sort((a, b) => (Number(b.total) || 0) - (Number(a.total) || 0));
+      break;
+    case 'amount-low':
+      list.sort((a, b) => (Number(a.total) || 0) - (Number(b.total) || 0));
+      break;
+    // 'newest' — already newest-first as stored, no change needed
+  }
+  return list;
+}
+
 function render(){
   const empty = document.getElementById('emptyState');
   const wrap = document.getElementById('tableWrap');
   const summary = document.getElementById('summaryStrip');
   const body = document.getElementById('historyBody');
+  const noResults = document.getElementById('noResults');
 
   if (!historyData.length) {
     empty.style.display = 'block';
@@ -295,16 +404,27 @@ function render(){
   document.getElementById('sumUnits').textContent = unitsSum.toLocaleString('en-IN');
   document.getElementById('sumAmt').textContent = '\u20B9' + fmt(amtSum);
 
-  body.innerHTML = historyData.map((h, i) => `
-    <div class="history-row">
-      <span class="h-period">${h.period}</span>
-      <span class="h-units">${h.totalUnits}</span>
-      <span class="h-main">${fmt(h.mainAmt)}</span>
-      <span class="h-peta">${fmt(h.petaAmt)}</span>
-      <span class="h-total">${fmt(h.total)}</span>
-      <button class="history-del" data-i="${i}" title="Delete entry" aria-label="Delete entry">&times;</button>
-    </div>
-  `).join('');
+  const list = getFilteredSortedData();
+
+  if (!list.length) {
+    body.innerHTML = '';
+    noResults.style.display = 'block';
+  } else {
+    noResults.style.display = 'none';
+    body.innerHTML = list.map((h) => `
+      <div class="history-row">
+        <span class="h-period">${h.period}</span>
+        <span class="h-units">${h.totalUnits}</span>
+        <span class="h-main">${fmt(h.mainAmt)}</span>
+        <span class="h-peta">${fmt(h.petaAmt)}</span>
+        <span class="h-total">${fmt(h.total)}</span>
+        <button class="history-share" data-i="${h.originalIndex}" title="Share entry" aria-label="Share entry">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+        </button>
+        <button class="history-del" data-i="${h.originalIndex}" title="Delete entry" aria-label="Delete entry">&times;</button>
+      </div>
+    `).join('');
+  }
 
   body.querySelectorAll('.history-del').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -317,7 +437,17 @@ function render(){
       render();
     });
   });
+
+  body.querySelectorAll('.history-share').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i, 10);
+      openShareModal(historyData[i]);
+    });
+  });
 }
+
+document.getElementById('searchInput').addEventListener('input', render);
+document.getElementById('sortSelect').addEventListener('change', render);
 
 document.getElementById('clearHistoryBtn').addEventListener('click', () => {
   const ok = window.confirm('Clear all saved history entries? This cannot be undone.');
@@ -329,6 +459,260 @@ document.getElementById('clearHistoryBtn').addEventListener('click', () => {
 
 loadHistory();
 render();
+
+/* ---------- Share-scope modal + image sharing for a saved entry ---------- */
+const shareModalOverlay = document.getElementById('shareModalOverlay');
+const shareModalPeriod = document.getElementById('shareModalPeriod');
+let shareEntryPending = null;
+
+function openShareModal(entry){
+  shareEntryPending = entry;
+  shareModalPeriod.textContent = entry.period;
+  shareModalOverlay.classList.add('show');
+}
+function closeShareModal(){
+  shareModalOverlay.classList.remove('show');
+  shareEntryPending = null;
+}
+document.getElementById('shareModalCancel').addEventListener('click', closeShareModal);
+shareModalOverlay.addEventListener('click', (e) => { if (e.target === shareModalOverlay) closeShareModal(); });
+
+document.querySelectorAll('.share-modal .opt').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const scope = btn.dataset.scope;
+    const entry = shareEntryPending;
+    closeShareModal();
+    if (entry) await shareHistoryEntry(entry, scope);
+  });
+});
+
+function roundRectPath(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function buildEntryShareText(entry, scope){
+  const mainUnits = entry.mainUnits !== undefined ? entry.mainUnits : '\u2014';
+  const petaUnits = entry.petaUnits !== undefined ? entry.petaUnits : '\u2014';
+
+  const lines = ['Electricity Bill Calculator', `Period: ${entry.period}`];
+  if (scope === 'main') {
+    lines.push(`Main meter — ${mainUnits} units — INR ${fmt(entry.mainAmt)}`);
+  } else if (scope === 'peta') {
+    lines.push(`Peta meter — ${petaUnits} units — INR ${fmt(entry.petaAmt)}`);
+  } else {
+    lines.push(
+      `Total units: ${entry.totalUnits}`,
+      `Total bill: INR ${fmt(entry.total)}`,
+      '',
+      `Main meter — ${mainUnits} units — INR ${fmt(entry.mainAmt)}`,
+      `Peta meter — ${petaUnits} units — INR ${fmt(entry.petaAmt)}`
+    );
+  }
+  return lines.join('\n');
+}
+
+async function buildEntryShareImage(entry, scope){
+  await (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
+
+  const W = 820, pad = 48;
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const bg = isLight ? '#f3f0e6' : '#16211d';
+  const bgGradInner = isLight ? '#ffffff' : '#1c2b25';
+  const panel = isLight ? '#ffffff' : '#1e2e28';
+  const line = isLight ? '#dbdccf' : '#3a4c43';
+  const copper = isLight ? '#a8622a' : '#c98a4b';
+  const copperDim = isLight ? '#d9b48c' : '#8a6238';
+  const lcd = isLight ? '#2f7d40' : '#9fe870';
+  const blue = isLight ? '#2f6a8a' : '#7fb8d8';
+  const cream = isLight ? '#20291f' : '#f4efe2';
+  const creamDim = isLight ? '#6a7267' : '#b9b3a2';
+  const readoutBg = isLight ? '#f3f0e6' : '#0c1613';
+
+  const mainUnits = entry.mainUnits !== undefined ? entry.mainUnits : '\u2014';
+  const petaUnits = entry.petaUnits !== undefined ? entry.petaUnits : '\u2014';
+
+  let y = 0;
+  const sections = [];
+
+  const subtitle = scope === 'main' ? 'MAIN METER'
+                  : scope === 'peta' ? 'PETA (SUB) METER'
+                  : 'MAIN METER + PETA (SUB) METER SPLIT';
+
+  sections.push({
+    height: 118,
+    draw(ctx, yy){
+      ctx.fillStyle = cream;
+      ctx.font = '700 34px "Space Grotesk", sans-serif';
+      ctx.fillText('Electricity Bill Calculator', pad, yy + 38);
+
+      ctx.fillStyle = copper;
+      ctx.font = '600 15px "Space Mono", monospace';
+      ctx.fillText(`${subtitle}  \u2022  ${entry.period}`, pad, yy + 66);
+
+      ctx.strokeStyle = copperDim;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(pad, yy + 92); ctx.lineTo(W - pad, yy + 92); ctx.stroke();
+      return yy + 118;
+    }
+  });
+
+  const heroLabel = scope === 'main' ? 'MAIN METER BILL'
+                   : scope === 'peta' ? 'PETA METER BILL'
+                   : 'TOTAL BILL (MAIN METER)';
+  const heroAmount = scope === 'main' ? entry.mainAmt : scope === 'peta' ? entry.petaAmt : entry.total;
+  const heroUnits = scope === 'main' ? mainUnits : scope === 'peta' ? petaUnits : entry.totalUnits;
+  const heroAccent = scope === 'peta' ? blue : (scope === 'both' ? lcd : copper);
+
+  sections.push({
+    height: 160,
+    draw(ctx, yy){
+      const dcx = pad + 70, dcy = yy + 78, dr = 66;
+      ctx.strokeStyle = line; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = copper; ctx.globalAlpha = 0.5;
+      ctx.setLineDash([5, 8]);
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+      ctx.fillStyle = readoutBg;
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.stroke();
+
+      ctx.strokeStyle = heroAccent; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(dcx, dcy); ctx.lineTo(dcx - dr*0.1, dcy - dr*0.5); ctx.stroke();
+      ctx.fillStyle = copper;
+      ctx.beginPath(); ctx.arc(dcx, dcy, 5, 0, Math.PI*2); ctx.fill();
+
+      const rx = pad + 168, rw = W - pad - rx, rh = 152, ry = yy;
+      ctx.fillStyle = readoutBg;
+      roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.fill();
+      ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
+      roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.stroke();
+
+      ctx.fillStyle = copper;
+      ctx.font = '600 15px "Space Mono", monospace';
+      ctx.fillText(heroLabel, rx + 22, ry + 36);
+
+      ctx.fillStyle = heroAccent;
+      ctx.font = '700 46px "Space Mono", monospace';
+      ctx.fillText(fmt(heroAmount) + ' INR', rx + 22, ry + 96);
+
+      ctx.fillStyle = creamDim;
+      ctx.font = '400 16px "Space Mono", monospace';
+      ctx.fillText(`${heroUnits} units`, rx + 22, ry + 128);
+      return yy + 160;
+    }
+  });
+
+  if (scope === 'both') {
+    sections.push({
+      height: 240,
+      draw(ctx, yy){
+        const sgap = 20, sw = (W - pad*2 - sgap) / 2, sh = 220;
+        function drawSplitCard(x, label, unitVal, amtVal, accent){
+          roundRectPath(ctx, x, yy, sw, sh, 12);
+          ctx.fillStyle = panel; ctx.fill();
+          ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
+          roundRectPath(ctx, x, yy, sw, sh, 12); ctx.stroke();
+
+          ctx.fillStyle = accent;
+          ctx.font = '700 17px "Space Mono", monospace';
+          ctx.fillText(label, x + 20, yy + 36);
+
+          ctx.strokeStyle = line; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(x + 20, yy + 50); ctx.lineTo(x + sw - 20, yy + 50); ctx.stroke();
+
+          ctx.fillStyle = creamDim;
+          ctx.font = '400 15px "Space Grotesk", sans-serif';
+          ctx.fillText('Unit', x + 20, yy + 82);
+          ctx.fillStyle = cream;
+          ctx.font = '700 22px "Space Mono", monospace';
+          const uw = ctx.measureText(String(unitVal)).width;
+          ctx.fillText(String(unitVal), x + sw - 20 - uw, yy + 86);
+
+          ctx.fillStyle = accent;
+          ctx.font = '600 13px "Space Mono", monospace';
+          ctx.fillText('BILL AMOUNT', x + 20, yy + 158);
+          ctx.fillStyle = accent;
+          ctx.font = '700 32px "Space Mono", monospace';
+          ctx.fillText('\u20B9' + fmt(amtVal), x + 20, yy + 198);
+        }
+        drawSplitCard(pad, 'MAIN METER', mainUnits, entry.mainAmt, copper);
+        drawSplitCard(pad + sw + sgap, 'PETA METER', petaUnits, entry.petaAmt, blue);
+        return yy + 240;
+      }
+    });
+  }
+
+  const footerHeight = 70;
+  sections.push({
+    height: footerHeight,
+    draw(ctx, yy){
+      ctx.strokeStyle = line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(W - pad, yy); ctx.stroke();
+
+      ctx.fillStyle = creamDim;
+      ctx.font = '400 14px "Space Mono", monospace';
+      ctx.fillText(`\u00A9 ${new Date().getFullYear()} Electricity Bill Calculator`, pad, yy + 38);
+
+      ctx.fillStyle = copper;
+      ctx.font = '600 14px "Space Mono", monospace';
+      const authorText = 'Author — Vishal Beriya';
+      const aw = ctx.measureText(authorText).width;
+      ctx.fillText(authorText, W - pad - aw, yy + 38);
+      return yy + footerHeight;
+    }
+  });
+
+  const H = sections.reduce((sum, s) => sum + s.height, 0) + pad;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const grad = ctx.createRadialGradient(W/2, 140, 60, W/2, 140, H*0.8);
+  grad.addColorStop(0, bgGradInner);
+  grad.addColorStop(1, bg);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  y = pad * 0.6;
+  sections.forEach((s) => { y = s.draw(ctx, y); });
+
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+}
+
+async function shareHistoryEntry(entry, scope){
+  try{
+    const text = buildEntryShareText(entry, scope);
+    const blob = await buildEntryShareImage(entry, scope);
+    const fileName = scope === 'main' ? 'main-meter-bill.png'
+                    : scope === 'peta' ? 'peta-meter-bill.png'
+                    : 'electricity-bill.png';
+    const file = new File([blob], fileName, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Electricity Bill Calculator', text });
+    } else if (navigator.share) {
+      await navigator.share({ title: 'Electricity Bill Calculator', text });
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      alert('Sharing isn\'t supported on this browser, so the result was copied to your clipboard instead — paste it into WhatsApp or any chat.');
+    } else {
+      alert(text);
+    }
+  }catch(err){
+    if (err && err.name !== 'AbortError') {
+      alert('Could not share this entry. Please try again.');
+    }
+  }
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
