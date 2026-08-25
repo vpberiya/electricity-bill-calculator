@@ -14,7 +14,7 @@
 <title>Electricity bill calculator</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#16211d">
+<meta name="theme-color" content="#0F172A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,33 +24,33 @@
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
-    --bg: #16211d;
-    --panel: #1e2e28;
-    --panel-2: #24382f;
-    --copper: #c98a4b;
-    --copper-dim: #8a6238;
-    --lcd: #9fe870;
-    --lcd-dim: #4f7a3c;
-    --cream: #f4efe2;
-    --cream-dim: #b9b3a2;
-    --line: #3a4c43;
-    --blue: #7fb8d8;
-    --readout-bg: #0c1613;
+    --bg: #0F172A;
+    --panel: #172033;
+    --panel-2: #1E293B;
+    --copper: #F59E0B;
+    --copper-dim: #B96D05;
+    --lcd: #2DD4BF;
+    --lcd-dim: #168F82;
+    --cream: #F8FAFC;
+    --cream-dim: #94A3B8;
+    --line: #334155;
+    --blue: #60A5FA;
+    --readout-bg: #0A1120;
   }
 
   [data-theme="light"]{
-    --bg: #f3f0e6;
-    --panel: #ffffff;
-    --panel-2: #eef0e8;
-    --copper: #a8622a;
-    --copper-dim: #d9b48c;
-    --lcd: #2f7d40;
-    --lcd-dim: #6f8f74;
-    --cream: #20291f;
-    --cream-dim: #6a7267;
-    --line: #dbdccf;
-    --blue: #2f6a8a;
-    --readout-bg: #f3f0e6;
+    --bg: #F4F7FB;
+    --panel: #FFFFFF;
+    --panel-2: #F8FAFC;
+    --copper: #E38B2C;
+    --copper-dim: #B96A16;
+    --lcd: #087F8C;
+    --lcd-dim: #5BA8AE;
+    --cream: #172033;
+    --cream-dim: #667085;
+    --line: #D9E1EA;
+    --blue: #2563EB;
+    --readout-bg: #F1F5F9;
   }
 
   html{ transition: background-color 0.25s ease; }
@@ -315,7 +315,7 @@
     font-family: 'Space Grotesk', sans-serif; font-size: 13px; border-radius: 8px;
     padding: 10px 14px; cursor: pointer; border: 1px solid transparent; min-height: 42px;
   }
-  .install-banner .btn-install{ background: var(--copper); color: #16211d; font-weight: 700; border-color: var(--copper); }
+  .install-banner .btn-install{ background: var(--copper); color: #0F172A; font-weight: 700; border-color: var(--copper); }
   .install-banner .btn-dismiss{ background: transparent; color: var(--cream-dim); border-color: var(--line); }
 
   @media print{ .install-banner{ display:none !important; } }
@@ -323,7 +323,7 @@
   /* ---------- Splash screen ---------- */
   #splash{
     position: fixed; inset: 0; z-index: 2000;
-    background: radial-gradient(circle at 50% 42%, #1c2b25 0%, #0f1a16 70%, #0a1310 100%);
+    background: radial-gradient(circle at 50% 42%, #172033 0%, #0F172A 70%, #0A1120 100%);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     transition: opacity 0.5s ease, visibility 0.5s ease;
   }
@@ -383,7 +383,7 @@
   #updateToast .text .t2{ font-size: 11px; color: var(--cream-dim); margin-top: 2px; }
   #updateToast button{
     font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700;
-    background: var(--blue); color: #16211d; border: none; border-radius: 6px;
+    background: var(--blue); color: #0F172A; border: none; border-radius: 6px;
     padding: 8px 12px; cursor: pointer; flex-shrink:0; min-height: 36px;
   }
   @media print{ #updateToast{ display:none !important; } }
@@ -419,13 +419,13 @@
   <div class="splash-ring">
     <div class="glow"></div>
     <svg viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="52" fill="none" stroke="#3a4c43" stroke-width="2"/>
-      <circle cx="60" cy="60" r="52" fill="none" stroke="#c98a4b" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#334155" stroke-width="2"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
       <g id="splashDisc">
-        <circle cx="60" cy="60" r="38" fill="#0c1613" stroke="#8a6238" stroke-width="1.5"/>
-        <line x1="60" y1="60" x2="60" y2="24" stroke="#9fe870" stroke-width="3" stroke-linecap="round"/>
-        <line x1="60" y1="60" x2="60" y2="96" stroke="#4f7a3c" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="60" cy="60" r="4" fill="#c98a4b"/>
+        <circle cx="60" cy="60" r="38" fill="#0A1120" stroke="#B96D05" stroke-width="1.5"/>
+        <line x1="60" y1="60" x2="60" y2="24" stroke="#2DD4BF" stroke-width="3" stroke-linecap="round"/>
+        <line x1="60" y1="60" x2="60" y2="96" stroke="#168F82" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="60" cy="60" r="4" fill="#F59E0B"/>
       </g>
     </svg>
   </div>
@@ -472,15 +472,15 @@
   <div class="meter">
     <div class="dial-holder">
       <svg width="120" height="120" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="#3a4c43" stroke-width="2"/>
-        <circle cx="60" cy="60" r="52" fill="none" stroke="#c98a4b" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#334155" stroke-width="2"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4 6" opacity="0.5"/>
         <g id="disc">
-          <circle cx="60" cy="60" r="38" fill="#0c1613" stroke="#8a6238" stroke-width="1.5"/>
-          <line x1="60" y1="60" x2="60" y2="24" stroke="#9fe870" stroke-width="3" stroke-linecap="round"/>
-          <line x1="60" y1="60" x2="60" y2="96" stroke="#4f7a3c" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="60" cy="60" r="4" fill="#c98a4b"/>
+          <circle cx="60" cy="60" r="38" fill="#0A1120" stroke="#B96D05" stroke-width="1.5"/>
+          <line x1="60" y1="60" x2="60" y2="24" stroke="#2DD4BF" stroke-width="3" stroke-linecap="round"/>
+          <line x1="60" y1="60" x2="60" y2="96" stroke="#168F82" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="60" cy="60" r="4" fill="#F59E0B"/>
         </g>
-        <text x="60" y="115" text-anchor="middle" font-family="Space Mono, monospace" font-size="8" fill="#b9b3a2">kWh LOAD</text>
+        <text x="60" y="115" text-anchor="middle" font-family="Space Mono, monospace" font-size="8" fill="#94A3B8">kWh LOAD</text>
       </svg>
     </div>
     <div class="readout">
@@ -1030,9 +1030,18 @@ async function buildShareImage(scope){
   const petaAmt = document.getElementById('petaAmt').textContent;
 
   const W = 820, pad = 48;
-  const bg = '#16211d', panel = '#1e2e28', line = '#3a4c43';
-  const copper = '#c98a4b', copperDim = '#8a6238', lcd = '#9fe870', blue = '#7fb8d8';
-  const cream = '#f4efe2', creamDim = '#b9b3a2';
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const bg = isLight ? '#F4F7FB' : '#0F172A';
+  const bgGradInner = isLight ? '#FFFFFF' : '#172033';
+  const panel = isLight ? '#FFFFFF' : '#172033';
+  const line = isLight ? '#D9E1EA' : '#334155';
+  const copper = isLight ? '#E38B2C' : '#F59E0B';
+  const copperDim = isLight ? '#B96A16' : '#B96D05';
+  const lcd = isLight ? '#087F8C' : '#2DD4BF';
+  const blue = isLight ? '#2563EB' : '#60A5FA';
+  const cream = isLight ? '#172033' : '#F8FAFC';
+  const creamDim = isLight ? '#667085' : '#94A3B8';
+  const readoutBg = isLight ? '#F1F5F9' : '#0A1120';
 
   // ---- lay out sections top-to-bottom with a running cursor, so the
   // canvas height always matches exactly what gets drawn (no dead space) ----
@@ -1082,7 +1091,7 @@ async function buildShareImage(scope){
       ctx.beginPath(); ctx.arc(dcx, dcy, dr, 0, Math.PI*2); ctx.stroke();
       ctx.setLineDash([]); ctx.globalAlpha = 1;
 
-      ctx.fillStyle = '#0c1613';
+      ctx.fillStyle = readoutBg;
       ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.fill();
       ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(dcx, dcy, dr*0.72, 0, Math.PI*2); ctx.stroke();
@@ -1093,7 +1102,7 @@ async function buildShareImage(scope){
       ctx.beginPath(); ctx.arc(dcx, dcy, 5, 0, Math.PI*2); ctx.fill();
 
       const rx = pad + 168, rw = W - pad - rx, rh = 152, ry = yy;
-      ctx.fillStyle = '#0c1613';
+      ctx.fillStyle = readoutBg;
       roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.fill();
       ctx.strokeStyle = copperDim; ctx.lineWidth = 1.5;
       roundRectPath(ctx, rx, ry, rw, rh, 10); ctx.stroke();
@@ -1184,7 +1193,7 @@ async function buildShareImage(scope){
   const ctx = canvas.getContext('2d');
 
   const grad = ctx.createRadialGradient(W/2, 140, 60, W/2, 140, H*0.8);
-  grad.addColorStop(0, '#1c2b25');
+  grad.addColorStop(0, bgGradInner);
   grad.addColorStop(1, bg);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);

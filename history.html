@@ -14,7 +14,7 @@
 <title>History &mdash; Electricity bill calculator</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#16211d">
+<meta name="theme-color" content="#0F172A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,32 +25,32 @@
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
-    --bg: #16211d;
-    --panel: #1e2e28;
-    --panel-2: #24382f;
-    --copper: #c98a4b;
-    --copper-dim: #8a6238;
-    --lcd: #9fe870;
-    --lcd-dim: #4f7a3c;
-    --cream: #f4efe2;
-    --cream-dim: #b9b3a2;
-    --line: #3a4c43;
-    --blue: #7fb8d8;
-    --readout-bg: #0c1613;
+    --bg: #0F172A;
+    --panel: #172033;
+    --panel-2: #1E293B;
+    --copper: #F59E0B;
+    --copper-dim: #B96D05;
+    --lcd: #2DD4BF;
+    --lcd-dim: #168F82;
+    --cream: #F8FAFC;
+    --cream-dim: #94A3B8;
+    --line: #334155;
+    --blue: #60A5FA;
+    --readout-bg: #0A1120;
   }
   [data-theme="light"]{
-    --bg: #f3f0e6;
-    --panel: #ffffff;
-    --panel-2: #eef0e8;
-    --copper: #a8622a;
-    --copper-dim: #d9b48c;
-    --lcd: #2f7d40;
-    --lcd-dim: #6f8f74;
-    --cream: #20291f;
-    --cream-dim: #6a7267;
-    --line: #dbdccf;
-    --blue: #2f6a8a;
-    --readout-bg: #f3f0e6;
+    --bg: #F4F7FB;
+    --panel: #FFFFFF;
+    --panel-2: #F8FAFC;
+    --copper: #E38B2C;
+    --copper-dim: #B96A16;
+    --lcd: #087F8C;
+    --lcd-dim: #5BA8AE;
+    --cream: #172033;
+    --cream-dim: #667085;
+    --line: #D9E1EA;
+    --blue: #2563EB;
+    --readout-bg: #F1F5F9;
   }
 
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -646,17 +646,17 @@ async function buildEntryShareImage(entry, scope){
 
   const W = 820, pad = 48;
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  const bg = isLight ? '#f3f0e6' : '#16211d';
-  const bgGradInner = isLight ? '#ffffff' : '#1c2b25';
-  const panel = isLight ? '#ffffff' : '#1e2e28';
-  const line = isLight ? '#dbdccf' : '#3a4c43';
-  const copper = isLight ? '#a8622a' : '#c98a4b';
-  const copperDim = isLight ? '#d9b48c' : '#8a6238';
-  const lcd = isLight ? '#2f7d40' : '#9fe870';
-  const blue = isLight ? '#2f6a8a' : '#7fb8d8';
-  const cream = isLight ? '#20291f' : '#f4efe2';
-  const creamDim = isLight ? '#6a7267' : '#b9b3a2';
-  const readoutBg = isLight ? '#f3f0e6' : '#0c1613';
+  const bg = isLight ? '#F4F7FB' : '#0F172A';
+  const bgGradInner = isLight ? '#FFFFFF' : '#172033';
+  const panel = isLight ? '#FFFFFF' : '#172033';
+  const line = isLight ? '#D9E1EA' : '#334155';
+  const copper = isLight ? '#E38B2C' : '#F59E0B';
+  const copperDim = isLight ? '#B96A16' : '#B96D05';
+  const lcd = isLight ? '#087F8C' : '#2DD4BF';
+  const blue = isLight ? '#2563EB' : '#60A5FA';
+  const cream = isLight ? '#172033' : '#F8FAFC';
+  const creamDim = isLight ? '#667085' : '#94A3B8';
+  const readoutBg = isLight ? '#F1F5F9' : '#0A1120';
 
   const { mainUnits, petaUnits } = deriveEntryUnits(entry);
 
